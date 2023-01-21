@@ -5,6 +5,10 @@ import boto3
 import botocore
 import gzip
 import json
+from pathlib import Path
+
+# Script to create the initial csv files in imageinfos/
+# Requires s3 credentials
 
 SESSION = boto3.Session()
 S3 = SESSION.client('s3')
@@ -76,8 +80,16 @@ def create_initial_volume_csvs():
     global WINFOS
 
     for w, winfo in WINFOS.items():
+        csvfname = 'imageinfos/'+w+'-'+winfo["i"]+'.csv'
+        if Path(csvfname).is_file():
+            print("skip "+csvfname)
+            continue
         iil = get_image_list_s3(w, winfo["i"])
-        with open('imageinfos/'+w+'-'+winfo["i"]+'.csv', 'w', newline='') as csvfile:
+        if iil is None:
+            print("cannot get image list for "+w)
+            continue
+        print("write "+csvfname)
+        with open(csvfname, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
             for i, imginfo in enumerate(iil):
                 writer.writerow([imginfo["filename"], str(i+1), imginfo["width"], imginfo["height"]])
