@@ -101,7 +101,7 @@ def process_image(wlname, ilname, imgfname):
 #process_image("W1NLM22", "I1NLM22_001", "I1NLM22_0010002.jpg")
 
 def process_all_csvs():
-    csv_files = glob("./imageinfos/*.csv")
+    csv_files = sorted(glob("./imageinfos/*.csv"))
     for csv_fname in tqdm(csv_files):
         [wlname, ilname] = csv_fname[13:].split("-")
         ilname = ilname[:-4]
@@ -117,7 +117,9 @@ def process_all_csvs():
                 imgfname = row[0]
                 try:
                     process_image(wlname, ilname, imgfname)
+                except KeyboardInterrupt as e:
+                    raise e
                 except:
-                    logging.exception("error while processing csv_fname")
+                    logging.exception("error while processing "+csv_fname)
 
 process_all_csvs()
