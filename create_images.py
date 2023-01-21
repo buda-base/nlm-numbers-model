@@ -10,6 +10,7 @@ import PIL
 from PIL import Image as PillowImage
 from tqdm import tqdm
 from glob import glob
+import logging
 
 # get images from the BDRC s3 archive,
 # process them and upload on s3://image-processing.bdrc.io/nlm-numbers/
@@ -17,6 +18,21 @@ from glob import glob
 
 SESSION = boto3.Session()
 S3 = SESSION.client('s3')
+
+def read_winfos():
+    res = {}
+    with open("nlm-volumeinfos.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        next(reader)
+        for row in reader:
+            res[row[1]] = {
+                "nlm_id": row[0],
+                "i": row[2],
+                "nb_texts": int(row[3])
+            }
+    return res
+
+WINFOS = read_winfos()
 
 def get_s3_folder_prefix(wlname, image_group_lname):
     """
@@ -59,6 +75,7 @@ def process_image(wlname, ilname, imgfname):
     sources3key = get_s3_folder_prefix(wlname, ilname)+imgfname
     blob = gets3blob(sources3key)
     if blob is None:
+        logging.exception(f"Failed to read {s3key} from s3")
         return None
     try:
         img = PillowImage.open(blob)
@@ -88,9 +105,15 @@ def process_all_csvs():
     for csv_fname in tqdm(csv_files):
         [wlname, ilname] = csv_fname[13:].split("-")
         ilname = ilname[:-4]
+        winfo = WINFOS[wlname]
         with open(csv_fname, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
+            row_i = 0
             for row in reader:
+                row_i += 1
+                if row_i > 4 and winfo["nb_texts"] < 2:
+                    # no need to process images for volumes with just one text
+                    break
                 imgfname = row[0]
                 try:
                     process_image(wlname, ilname, imgfname)
