@@ -11,6 +11,7 @@ from PIL import Image as PillowImage
 from tqdm import tqdm
 from glob import glob
 import logging
+import statistics
 
 # get images from the BDRC s3 archive,
 # process them and upload on s3://image-processing.bdrc.io/nlm-numbers/
@@ -71,6 +72,20 @@ def gets3blob(s3Key):
         else:
             raise
 
+def get_med_height():
+    heights = []
+    csv_files = sorted(glob("./imageinfos/*.csv"))
+    for csv_fname in tqdm(csv_files):
+        with open(csv_fname, newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                heights.append(int(row[3]))
+    print(statistics.median(heights))
+    print(statistics.mean43(heights))
+
+TARGET_WIDTH = 450
+TARGET_HEIGHT = 250
+
 def process_image(wlname, ilname, imgfname):
     sources3key = get_s3_folder_prefix(wlname, ilname)+imgfname
     blob = gets3blob(sources3key)
@@ -83,10 +98,17 @@ def process_image(wlname, ilname, imgfname):
         logging.exception(f"Failed to read {s3key} with Pillow")
         return False
     width, height = img.size
-    img = img.crop((0, 0, width/5, height))
+    if height != TARGET_WIDTH:
+        new_width = int(width * TARGET_WIDTH / height)
+        img = img.resize((new_width, TARGET_WIDTH), PIL.Image.Resampling.LANCZOS)
+    #if height < TARGET_WIDTH:
+    #    new_img = PIL.Image.new(img.mode, (img.width, TARGET_WIDTH), (0,0,0))
+    #    new_img.paste(img, (0, int(height - TARGET_WIDTH /2)))
+    #    img = new_img
+    img = img.crop((0, 0, TARGET_HEIGHT, img.height))
     img = img.rotate(90, expand=1)
     dests3key = "nlm-numbers/"+wlname+"-"+ilname+"/"+imgfname
-    #img.save("test.jpg", "JPEG", progressive=True, optimize=True)
+    #img.save(imgfname, "JPEG", progressive=True, optimize=True)
     # Save the image to an in-memory file
     in_mem_file = io.BytesIO()
     img.save(in_mem_file, "JPEG", progressive=True, optimize=True)
@@ -98,7 +120,12 @@ def process_image(wlname, ilname, imgfname):
     )
 
 # test
+#get_med_height()
 #process_image("W1NLM22", "I1NLM22_001", "I1NLM22_0010002.jpg")
+#process_image("W1NLM102", "I1NLM102_001", "I1NLM102_0010030.jpg")
+#process_image("W1NLM1052", "I1NLM1052_001", "I1NLM1052_0010001.jpg")
+#process_image("W1NLM1095", "I1NLM1095_001", "I1NLM1095_0010029.jpg")
+
 
 def process_all_csvs():
     csv_files = sorted(glob("./imageinfos/*.csv"))
@@ -111,7 +138,7 @@ def process_all_csvs():
             row_i = 0
             for row in reader:
                 row_i += 1
-                if row_i > 4 and winfo["nb_texts"] < 2:
+                if row_i > 2:# and winfo["nb_texts"] < 2:
                     # no need to process images for volumes with just one text
                     break
                 imgfname = row[0]
@@ -122,4 +149,3 @@ def process_all_csvs():
                 except:
                     logging.exception("error while processing "+csv_fname)
 
-process_all_csvs()
