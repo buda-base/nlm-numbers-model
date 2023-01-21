@@ -16,13 +16,19 @@ This project leverages AI to detect these numbers and automate the mapping from 
 
 ### Creation of the training data
 
-`nlm-volumeinfos.csv` contains information about each volume of the NLM collection, including a list of all the numbers that should appear on the images.
+`nlm-volumeinfos.csv` contains information about each volume of the NLM collection, including a list of all the numbers that should appear on the images. Note that the model does not need to be used on the 613 volumes having only one text. Warning: not all volumes have images yet.
 
-The directory `imageinfos/` contains csv files named after each volume, listing the images in the volume with the following columns:
+The file http://eroux.fr/nlm-imageinfos.zip file should be downloaded and uncompressed in the `imageinfos/` directory. It contains csv files named after each volume, listing the images in the volume with the following columns:
 - the original image file name
 - the BDRC image number
 - width of the original image
 - height of the original image
 - "T" if a number is present on the image (in the golden standard), "F" if a number is not present, "" for no information
 - same as previous but as the output of the model
+
+Since the NLM cataloguers seem to have been very consistent in the way they wrote the number, we prepare the image for processing by:
+- cropping the right side (80% of the image)
+- rotating the images 90° counter-clockwise
+
+obtaining a result similar to
 
