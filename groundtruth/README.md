@@ -18,7 +18,7 @@ images that have a stamp + number easy to read by a human.
 
 #### difficult.csv
 
-images that have a stamp + number but where it it difficult to see even for a human.
+images that have a stamp + number but difficult to see even for a human.
 
 #### stamp_transparency.csv
 
