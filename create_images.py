@@ -149,3 +149,4 @@ def process_all_csvs():
                 except:
                     logging.exception("error while processing "+csv_fname)
 
+process_all_csvs()
