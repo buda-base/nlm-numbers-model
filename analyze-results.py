@@ -47,8 +47,10 @@ def analyze_volume(batchdir, jsonlfn, stats):
             previous_has_number = False
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
+        stats["correct_numbers"] += nb_numbers_expected
     elif nb_detected < nb_numbers_expected:
         stats["missing_numbers"] += nb_numbers_expected - nb_detected
+        stats["correct_numbers"] += nb_detected
     else:
         stats["correct_numbers"] += nb_detected
 
