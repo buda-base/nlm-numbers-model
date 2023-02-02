@@ -13,7 +13,7 @@ def get_volinfos():
 
 VINFO = get_volinfos()
 
-P_LIMIT = 0.8
+P_LIMIT = 0.5
 
 def get_images(jsonlfn):
     res = []
@@ -34,12 +34,15 @@ def analyze_volume(batchdir, jsonlfn, stats):
     for imgnum, image in enumerate(images):
         has_number = float(image[2]) >= P_LIMIT
         if has_number:
-            if previous_has_number:
-                # when there are numbers inferred on two consecutive images we ignore the second one
-                stats["additional_numbers_fixable"] += 1
-            elif imgnum >= nb_images -2:
+            if imgnum >= nb_images -2:
                 # we ignore numbers detected on the final 2 images which we assume are covers
                 stats["additional_numbers_fixable"] += 1
+                stats["additional_numbers"] += 1
+            #if previous_has_number:
+            # when there are numbers inferred on two consecutive images we ignore the second one
+            # but unfortunately it does happen, in W1NLM28 for instance
+            #    stats["additional_numbers_fixable"] += 1
+            #    stats["additional_numbers"] += 1
             else:
                 nb_detected += 1
             previous_has_number = True
@@ -48,6 +51,7 @@ def analyze_volume(batchdir, jsonlfn, stats):
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
         stats["correct_numbers"] += nb_numbers_expected
+        stats["nb_to_look_at"] += nb_detected
     elif nb_detected < nb_numbers_expected:
         stats["missing_numbers"] += nb_numbers_expected - nb_detected
         stats["correct_numbers"] += nb_detected
@@ -61,6 +65,7 @@ def main(batchdir):
         "additional_numbers": 0,
         "additional_numbers_fixable": 0,
         "correct_numbers": 0,
+        "nb_to_look_at": 0
     }
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats)
