@@ -86,11 +86,11 @@ def get_med_height():
 TARGET_WIDTH = 450
 TARGET_HEIGHT = 250
 
-def process_image(wlname, ilname, imgfname):
+def get_processed_image(wlname, ilname, imgfname):
     sources3key = get_s3_folder_prefix(wlname, ilname)+imgfname
     blob = gets3blob(sources3key)
     if blob is None:
-        logging.exception(f"Failed to read {s3key} from s3")
+        logging.exception(f"Failed to read {sources3key} from s3")
         return None
     try:
         img = PillowImage.open(blob)
@@ -107,6 +107,10 @@ def process_image(wlname, ilname, imgfname):
     #    img = new_img
     img = img.crop((0, 0, TARGET_HEIGHT, img.height))
     img = img.rotate(90, expand=1)
+    return img
+
+def process_image(wlname, ilname, imgfname):
+    img = get_processed_image(wlname, ilname, imgfname)
     dests3key = "nlm-numbers/"+wlname+"-"+ilname+"/"+imgfname
     #img.save(imgfname, "JPEG", progressive=True, optimize=True)
     # Save the image to an in-memory file
@@ -149,4 +153,5 @@ def process_all_csvs():
                 except:
                     logging.exception("error while processing "+csv_fname)
 
-process_all_csvs()
+if __name__ == "__main__":
+    process_all_csvs()
