@@ -38,3 +38,6 @@ obtaining a result similar to
 3361, 3362, 4043 -> difficult
 4402
 2955,2965-2967,2984,2986,2989,3361,3366,3456,3597,3988,4722
+
+difficult case: https://iiif.bdrc.io/bdr:I1NLM260_001::I1NLM260_0010013.jpg/full/max/0/default.jpg
+https://iiif.bdrc.io/bdr:I1NLM58_001::I1NLM58_0010182.jpg/full/max/0/default.jpg
