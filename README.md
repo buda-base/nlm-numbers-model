@@ -43,3 +43,7 @@ difficult case: https://iiif.bdrc.io/bdr:I1NLM260_001::I1NLM260_0010013.jpg/full
 https://iiif.bdrc.io/bdr:I1NLM58_001::I1NLM58_0010182.jpg/full/max/0/default.jpg
 
 I1NLM232_0010162.jpg
+
+I1NLM24_0010173.jpg should have a stamp and number but doesn't
+I1NLM6_0010214.jpg
+I1NLM6_0010298.jpg
