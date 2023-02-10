@@ -41,3 +41,5 @@ obtaining a result similar to
 
 difficult case: https://iiif.bdrc.io/bdr:I1NLM260_001::I1NLM260_0010013.jpg/full/max/0/default.jpg
 https://iiif.bdrc.io/bdr:I1NLM58_001::I1NLM58_0010182.jpg/full/max/0/default.jpg
+
+I1NLM232_0010162.jpg
