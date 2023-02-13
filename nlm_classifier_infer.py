@@ -4,23 +4,27 @@ import numpy as np
 import keras
 import tensorflow as tf
 from natsort import natsorted
-from glob import glob
 from tqdm import tqdm
+from glob import glob
+import boto3
+import botocore
+import hashlib
+import csv
+from PIL import Image
+import io
 
+SESSION = boto3.Session()
+S3 = SESSION.client('s3')
 
-NLM_DATA = "D:\\Datasets\\Tibetan\\NLM\\data2"
-WORKS = os.listdir(NLM_DATA)
 IMAGE_SIZE = 244
 
 model_file = "Models/xce_model.h5"
 MODEL_NAME = os.path.basename(model_file).split(".")[0]
 MODEL = keras.models.load_model(model_file)
 
-OUT_PATH = os.path.join(NLM_DATA, "Results")
-
+OUT_PATH = "results/"+MODEL_NAME+"/"
 if not os.path.exists(OUT_PATH):
     os.makedirs(OUT_PATH)
-
 
 def batch_data(images, batch_size=8):
     if len(images) % batch_size == 0:
@@ -33,9 +37,45 @@ def batch_data(images, batch_size=8):
     return img_batches
 
 
-def preprocess_image(img):
-    img = tf.io.read_file(img)
-    img = tf.io.decode_jpeg(img, channels=1)
+def get_s3_folder_prefix(wlname, image_group_lname):
+    """
+    gives the s3 prefix (~folder) in which the volume will be present.
+    inpire from https://github.com/buda-base/buda-iiif-presentation/blob/master/src/main/java/
+    io/bdrc/iiif/presentation/ImageInfoListService.java#L73
+    Example:
+       - wlname=W22084, image_group_lname=I0886
+       - result = "Works/60/W22084/images/W22084-0886/
+    where:
+       - 60 is the first two characters of the md5 of the string W22084
+       - 0886 is:
+          * the image group ID without the initial "I" if the image group ID is in the form I\\d\\d\\d\\d
+          * or else the full image group ID (incuding the "I")
+    """
+    md5 = hashlib.md5(str.encode(wlname))
+    two = md5.hexdigest()[:2]
+
+    pre, rest = image_group_lname[0], image_group_lname[1:]
+    if pre == 'I' and rest.isdigit() and len(rest) == 4:
+        suffix = rest
+    else:
+        suffix = image_group_lname
+
+    return 'Works/{two}/{RID}/images/{RID}-{suffix}/'.format(two=two, RID=wlname, suffix=suffix)
+
+def gets3blob(s3Key):
+    f = io.BytesIO()
+    try:
+        S3.download_fileobj('archive.tbrc.org', s3Key, f)
+        return f
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == '404':
+            return None
+        else:
+            raise
+
+def preprocess_image(s3prefix, imgfname):
+    img = Image.open(gets3blob(s3prefix+imgfname)).convert('L')
+    img = tf.keras.utils.img_to_array(img)
     img = tf.slice(img, begin=[0, 0, 0], size=[tf.shape(img)[0], tf.shape(img)[0], 1])
     img = tf.image.resize_with_pad(
         img,
@@ -49,8 +89,8 @@ def preprocess_image(img):
     return img
 
 
-def predict_batch(image_batch):
-    images = [preprocess_image(x) for x in image_batch]
+def predict_batch(s3prefix, image_batch):
+    images = [preprocess_image(s3prefix, x) for x in image_batch]
     images = np.array(images)
     batched_predictions = MODEL.predict_on_batch(images)
 
@@ -84,8 +124,8 @@ def run_prediction(work_idx, write_output=True):
         return None
 
 
-def save_results(results, work_idx, model_name, out_path):
-    json_file = f"{out_path}/{WORKS[work_idx]}_{model_name}.jsonl"
+def save_results(results, w, model_name, out_path):
+    json_file = f"{out_path}{w}.jsonl"
 
     with open(json_file, "w", encoding="utf8") as f:
         for batched_results in results:
@@ -95,10 +135,60 @@ def save_results(results, work_idx, model_name, out_path):
                 )
                 f.write(f"{json_string}\n")
 
+def list_all_w():
+    """
+    lists everything with more than one text
+    """
+    res = []
+    with open("nlm-volumeinfos.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        next(reader)
+        for row in reader:
+            if int(row[3]) > 1:
+                res.append((row[1], row[2]))
+    return natsorted(res)
+
+def get_image_list(w, i):
+    res = []
+    with open("imageinfos/"+w+"-"+i+".csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        # we can skip the first two images, we already looked at those
+        next(reader)
+        next(reader)
+        for row in reader:
+            res.append(row[0])
+    return res
+
+def run_wi(w, i):
+    s3prefix = get_s3_folder_prefix(w,i)
+    imglist = get_image_list(w, i)
+    #imglist = imglist[:1]
+    batched_images = batch_data(imglist)
+    accumulated_results = []
+
+    for idx in range(0, len(batched_images)):
+        predictions = predict_batch(s3prefix, batched_images[idx])
+        results = np.stack(
+            (
+                batched_images[idx],
+                np.round(predictions[:, 0], decimals=2),
+                np.round(predictions[:, 1], decimals=2),
+            ),
+            axis=1,
+        )
+        print(results)
+        accumulated_results.append(results.tolist())
+
+    return accumulated_results
+
+
+def run_everything():
+    allw = list_all_w()
+    for (w, i) in tqdm(allw):
+        results = run_wi(w, i)
+        if results is not None:
+            save_results(results, w, MODEL_NAME, OUT_PATH)
+        break
 
 if __name__ == "__main__":
-    for work_idx in tqdm(range(0, len(WORKS))):
-        results = run_prediction(work_idx)
-
-        if not results == None:
-            save_results(results, work_idx, MODEL_NAME, OUT_PATH)
+    run_everything()
