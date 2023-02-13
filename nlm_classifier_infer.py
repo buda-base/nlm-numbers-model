@@ -36,13 +36,19 @@ def batch_data(images, batch_size=8):
 def preprocess_image(img):
     img = tf.io.read_file(img)
     img = tf.io.decode_jpeg(img, channels=1)
-    img = tf.slice(img, begin=[0, 0, 0], size=[tf.shape(img)[0], tf.shape(img)[0], 1])
+    
+    if img.shape[0] < img.shape[1]:
+        img = tf.slice(img, begin=[0, 0, 0], size=[tf.shape(img)[0], tf.shape(img)[0], 1])
+    else:
+        img = tf.slice(img, begin=[0, 0, 0], size=[tf.shape(img)[0], tf.shape(img)[0] // 2, 1])
+    
     img = tf.image.resize_with_pad(
         img,
         target_height=IMAGE_SIZE,
         target_width=IMAGE_SIZE,
         method=tf.image.ResizeMethod.LANCZOS3,
     )
+    
     img = tf.cast(img, tf.float32)
     img /= 255.0
 
