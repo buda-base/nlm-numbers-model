@@ -12,6 +12,7 @@ import hashlib
 import csv
 from PIL import Image
 import io
+import logging
 
 SESSION = boto3.Session()
 S3 = SESSION.client('s3')
@@ -126,7 +127,7 @@ def results_already_exist(w, i):
         if e.response['Error']['Code'] == "404":
             return False
         else:
-            raise
+            return False # ?
     return True
 
 def list_all_w():
@@ -150,7 +151,10 @@ def get_image_list(w, i):
         next(reader)
         next(reader)
         for row in reader:
-            res.append(row[0])
+            height = int(row[3])
+            width = int(row[2])
+            if height < width:
+                res.append(row[0])
     return res
 
 def run_wi(w, i):
@@ -181,7 +185,11 @@ def run_everything():
         if results_already_exist(w,i):
             tqdm.write("skip "+w)
             continue
-        results = run_wi(w, i)
+        results = None
+        try:
+            results = run_wi(w, i)
+        except Exception as e: 
+            logging.exception(e)
         if results is not None:
             save_results(results, w, i)
         #break
