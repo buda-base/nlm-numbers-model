@@ -99,44 +99,35 @@ def predict_batch(s3prefix, image_batch):
 
     return batched_predictions
 
+def get_results_key(w, i):
+    return 'nlm-numbers/Aresults/'+MODEL_NAME+"/"+w+'-'+i+".jsonl"
 
-def run_prediction(work_idx, write_output=True):
-    work_path = os.path.join(NLM_DATA, WORKS[work_idx])
-    work_images = natsorted(glob(f"{work_path}/*.jpg"))
+def save_results(results, w, i):
+    jsonl_string = ""
 
-    if len(work_images) != 0:
-        batched_images = batch_data(work_images)
-        accumulated_results = []
-
-        for idx in range(0, len(batched_images)):
-            predictions = predict_batch(batched_images[idx])
-            results = np.stack(
-                (
-                    batched_images[idx],
-                    np.round(predictions[:, 0], decimals=2),
-                    np.round(predictions[:, 1], decimals=2),
-                ),
-                axis=1,
+    for batched_results in results:
+        for result in batched_results:
+            json_string = json.dumps(
+                result, ensure_ascii=False, separators=(", ", ": ")
             )
+            jsonl_string += json_string + "\n"
 
-            accumulated_results.append(results.tolist())
+    S3.put_object(
+        Body=jsonl_string, 
+        Bucket='image-processing.bdrc.io', 
+        Key=get_results_key(w, i)
+    )
 
-        return accumulated_results
-
-    else:
-        return None
-
-
-def save_results(results, w, model_name, out_path):
-    json_file = f"{out_path}{w}.jsonl"
-
-    with open(json_file, "w", encoding="utf8") as f:
-        for batched_results in results:
-            for result in batched_results:
-                json_string = json.dumps(
-                    result, ensure_ascii=False, separators=(", ", ": ")
-                )
-                f.write(f"{json_string}\n")
+def results_already_exist(w, i):
+    key = get_results_key(w,i)
+    try:
+        S3.head_object(Bucket='image-processing.bdrc.io', Key=key)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            return False
+        else:
+            raise
+    return True
 
 def list_all_w():
     """
@@ -179,7 +170,6 @@ def run_wi(w, i):
             ),
             axis=1,
         )
-        print(results)
         accumulated_results.append(results.tolist())
 
     return accumulated_results
@@ -188,10 +178,13 @@ def run_wi(w, i):
 def run_everything():
     allw = list_all_w()
     for (w, i) in tqdm(allw):
+        if results_already_exist(w,i):
+            tqdm.write("skip "+w)
+            continue
         results = run_wi(w, i)
         if results is not None:
-            save_results(results, w, MODEL_NAME, OUT_PATH)
-        break
+            save_results(results, w, i)
+        #break
 
 if __name__ == "__main__":
     run_everything()
