@@ -11,7 +11,7 @@ def get_volinfos():
         reader = csv.reader(csvfile, delimiter=',')
         next(reader)
         for row in reader:
-            res[row[2]] = {"nb_texts": int(row[3])}
+            res[row[2]] = {"nb_texts": int(row[3]), "numbers": row[6].split(", ")}
     return res
 
 VINFO = get_volinfos()
@@ -68,16 +68,23 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
     if wlname+"-"+ilname in TRAINING_DATA["with"]:
         from_training = TRAINING_DATA["with"][wlname+"-"+ilname]
         positives.update(from_training)
+    #print(sorted(list(positives)))
+    if wlname+"-"+ilname in TRAINING_DATA["without"]:
+        from_training = TRAINING_DATA["without"][wlname+"-"+ilname]
+        #print("discard "+str(len(from_training)))
+        for img in from_training:
+            positives.discard(img)
     positives = sorted(list(positives))
     nb_detected = len(positives)
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
         stats["additional_numbers_vol"] += 1
         stats["correct_numbers"] += nb_numbers_expected
+        sort_for_false_positives += list(positives)
         # if we detected N too many numbers, we look at the N detected with
         # the lowest probability
-        for i in range(nb_numbers_expected, nb_detected):
-            sort_for_false_positives.append(images[i][0])
+        #for i in range(nb_numbers_expected, nb_detected):
+        #    sort_for_false_positives + list(positives)
     elif nb_detected < nb_numbers_expected:
         stats["missing_numbers"] += nb_numbers_expected - nb_detected
         stats["missing_numbers_vol"] += 1
@@ -94,8 +101,24 @@ def download_images(imagelist, folder):
             continue
         wlname = "W"+imgfname[1:imgfname.find("_")]
         ilname = imgfname[:imgfname.find("_")+4]
-        img = get_processed_image(wlname, ilname, imgfname)
-        img.save(folder+imgfname, "JPEG", progressive=True, optimize=True)
+        try:
+            img = get_processed_image(wlname, ilname, imgfname)
+            img.save(folder+imgfname, "JPEG", progressive=True, optimize=True)
+        except:
+            print("couldn't download "+imgfname)
+
+def create_outline(wlname,ilname,positives):
+    rows = []
+    numbers = VINFO[wlname]
+    spos = sorted(list(positives))
+    nbrows = max(len(numbers), len(spos))
+    for i in range(nbrows):
+        num = number[i] if i < len(numbers) else ""
+        img_cell = ""
+        if i < len(spos):
+            img = spos[i]
+            img_cell = '=IMAGE("https://iiif.bdrc.io/bdr:'+ilname+'::'+img+'/0,0,500,1000/pct:50/270/default.jpg")'
+        rows += [img_cell,num]
 
 def main(batchdir, analysisdir):
     jsonlfns = sorted(glob(batchdir+"*.jsonl"))
