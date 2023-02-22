@@ -33,13 +33,26 @@ STRIKEDTHROUGH = [
     'I1NLM3478_0010169.jpg', 
     'I1NLM3486_0010199.jpg', 
     'I1NLM3645_0010259.jpg', 
-    'I1NLM3852_0010276.jpg'
+    'I1NLM3852_0010276.jpg',
+    'I1NLM2131_0010193.jpg'
 ]
 
 DOUBLE = [
     'I1NLM3870_0010041.jpg',
     'I1NLM2801_0010239.jpg',
-    'I1NLM2801_0010330.jpg'
+    'I1NLM2801_0010330.jpg',
+    'I1NLM3990_0010124.jpg'
+]
+
+NO_STAMP_TEXT_BREAK = [
+    'I1NLM5561_0010135.jpg',
+    'I1NLM1581_0010230.jpg',
+    'I1NLM5009_0010029.jpg'
+]
+
+TRIPLE = [
+    'I1NLM4033_0010297.jpg',
+    'I1NLM3990_0010126.jpg'
 ]
 
 TRAINING_DATA = {}
@@ -67,7 +80,7 @@ get_training_data("no_stamp", "without")
 #print(TRAINING_DATA)
 
 P_LIMIT = 0.5
-P_LIMIT_SECOND = 0.2
+P_LIMIT_SECOND = 0.01
 
 def get_images(jsonlfn):
     res = []
@@ -197,6 +210,6 @@ def main(batchdir, analysisdir):
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos)
     print(stats)
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
-    download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    #download_images(sort_for_false_negatives, analysisdir+"negatives/")
 
 main("results/batch2/", "analyses/batch2/")
