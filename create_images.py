@@ -84,7 +84,7 @@ def get_med_height():
     print(statistics.mean43(heights))
 
 TARGET_WIDTH = 450
-TARGET_HEIGHT = 450
+TARGET_HEIGHT = 300
 
 def get_processed_image(wlname, ilname, imgfname):
     sources3key = get_s3_folder_prefix(wlname, ilname)+imgfname
