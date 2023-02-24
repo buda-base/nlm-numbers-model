@@ -49,7 +49,7 @@ I1NLM6_0010214.jpg
 I1NLM6_0010298.jpg
 
 outline missing: 1354
-numbers in the wrong order: W1NLM2237
+numbers in the wrong order: W1NLM2237, W1NLM2830
 
 I1NLM2119_0010022
 
