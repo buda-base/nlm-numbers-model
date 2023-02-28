@@ -335,7 +335,7 @@ def get_images(jsonlfn):
 def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
-    #if wlname != "W1NLM26":
+    #if wlname != "W1NLM100":
     #    return
     vinfo = VINFO[ilname]
     nb_numbers_expected = vinfo["nb_texts"]
@@ -362,8 +362,6 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
     needsfirst = False
     if wlname+"-"+ilname in TRAINING_DATA["with"]:
         from_training = TRAINING_DATA["with"][wlname+"-"+ilname]
-        if "" in from_training:
-            print("woooooo")
         positives.update(from_training)
         less_positives.difference_update(from_training)
         nvh.difference_update(from_training)
@@ -456,21 +454,22 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives):
         img = "?"
         nb_numbers = 1
         if img_i < len(spos):
-            img = spos[img_i][-8:-4].lstrip("0")
+            img_orig = spos[img_i]
+            img = img_orig[-8:-4].lstrip("0")
             if adjustment_lost:
                 img += "?"
-            if img in STRIKEDTHROUGH or img in DUPLICATES or img in IGNORE:
+            if img_orig in STRIKEDTHROUGH or img_orig in DUPLICATES or img_orig in IGNORE:
                 img_i += 1
                 continue
-            if img_i > 0:
+            if img_i > 0 and img_orig not in IRREGULARITY_BEFORE:
                 grand_outline[-1][3] = img
-            if img in DOUBLE:
+            if img_orig in DOUBLE:
                 nb_numbers = 2
-            elif img in TRIPLE:
+            elif img_orig in TRIPLE:
                 nb_numbers = 3
-            elif img in QUAD:
+            elif img_orig in QUAD:
                 nb_numbers = 4
-            if img in IRREGULARITY_BEFORE:
+            if img_orig in IRREGULARITY_BEFORE:
                 if number_i < len(numbers):
                     grand_outline.append([wlname,numbers[number_i], "?",img])
                 number_i += 1
