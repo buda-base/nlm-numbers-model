@@ -16,6 +16,16 @@ def get_volinfos():
 
 VINFO = get_volinfos()
 
+def get_irreg_before():
+    res = []
+    with open("analyses/batch2/negative-pos-diff.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            res.append(row[0])
+    return res
+
+IRREGULARITY_BEFORE = get_irreg_before()
+
 STRIKEDTHROUGH = [
     'I1NLM3081_0010104.jpg', 
     'I1NLM3486_0010199.jpg', 
@@ -286,7 +296,6 @@ TRIPLE = [
 
 QUAD = [
     'I1NLM5190_0010400.jpg',
-
 ]
 
 TRAINING_DATA = {}
@@ -323,7 +332,7 @@ def get_images(jsonlfn):
             res.append(json.loads(l))
     return res
 
-def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high):
+def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
     #if wlname != "W1NLM26":
@@ -333,13 +342,14 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
     images = get_images(jsonlfn)
     nb_detected = 0
     # sort from higher to lower
-    images = sorted(images, key=lambda x: x[1])
+    #images = sorted(images, key=lambda x: x[1])
     positives = set()
     less_positives = set()
     nvh = set()
     nb_strikedthrough = 0
     nb_double = 0
     nb_triple = 0
+    nb_quad = 0
     for imgnum, image in enumerate(images):
         has_number = float(image[2]) >= P_LIMIT
         if has_number:
@@ -352,6 +362,8 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
     needsfirst = False
     if wlname+"-"+ilname in TRAINING_DATA["with"]:
         from_training = TRAINING_DATA["with"][wlname+"-"+ilname]
+        if "" in from_training:
+            print("woooooo")
         positives.update(from_training)
         less_positives.difference_update(from_training)
         nvh.difference_update(from_training)
@@ -369,6 +381,8 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
             nb_double += 1
         if img in TRIPLE:
             nb_triple += 1
+        if img in QUAD:
+            nb_quad += 1
     #print(sorted(list(positives)))
     if wlname+"-"+ilname in TRAINING_DATA["without"]:
         from_training = TRAINING_DATA["without"][wlname+"-"+ilname]
@@ -379,9 +393,10 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
             nvh.discard(img)
     if needsfirst:
         positives.add(ilname+"0001.jpg")
-    not_very_high+=list(nvh)
+    #not_very_high+=list(nvh)
     positives = sorted(list(positives))
-    nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple
+    add_to_grand_outline(grand_outline, wlname, ilname, positives)
+    nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
         stats["additional_numbers_vol"] += 1
@@ -396,7 +411,7 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         stats["missing_numbers_vol"] += 1
         stats["correct_numbers"] += nb_detected
         sort_for_false_negatives_pos += list(positives)[1:]
-        create_outline(wlname, ilname, positives)
+        #create_outline(wlname, ilname, positives)
         #for i in range(nb_detected, nb_numbers_expected):
         #    sort_for_false_negatives.append(images[i][0])
         # different aproach: we take everything between 0.2 and 0.5
@@ -417,6 +432,57 @@ def download_images(imagelist, folder):
         except Exception as e:
             print("couldn't download "+imgfname)
             print(e)
+
+def add_to_grand_outline(grand_outline, wlname,ilname,positives):
+    numbers = VINFO[ilname]["numbers"]
+    spos = sorted(list(positives))
+    img_i = 0
+    number_i = 0
+    adjust = 0
+    for img in positives:
+        if img in IRREGULARITY_BEFORE:
+            adjust += 1
+        elif img in STRIKEDTHROUGH or img in DUPLICATES or img in IGNORE:
+            adjust -= 1
+        elif img in DOUBLE:
+            adjust += 1
+        elif img in TRIPLE:
+            adjust += 2
+        elif img in QUAD:
+            adjust += 3
+    adjusted = len(numbers) == len(positives) + adjust
+    adjustment_lost = False
+    while img_i < len(spos) or number_i < len(numbers):
+        img = "?"
+        nb_numbers = 1
+        if img_i < len(spos):
+            img = spos[img_i][-8:-4].lstrip("0")
+            if adjustment_lost:
+                img += "?"
+            if img in STRIKEDTHROUGH or img in DUPLICATES or img in IGNORE:
+                img_i += 1
+                continue
+            if img_i > 0:
+                grand_outline[-1][3] = img
+            if img in DOUBLE:
+                nb_numbers = 2
+            elif img in TRIPLE:
+                nb_numbers = 3
+            elif img in QUAD:
+                nb_numbers = 4
+            if img in IRREGULARITY_BEFORE:
+                if number_i < len(numbers):
+                    grand_outline.append([wlname,numbers[number_i], "?",img])
+                number_i += 1
+                if not adjusted:
+                    adjustment_lost = True
+        else:
+            grand_outline[-1][3] = "?"
+        for j in range(nb_numbers):
+            if number_i + j < len(numbers):
+                grand_outline.append([wlname,numbers[number_i+j], img,img if j < nb_numbers -1 else "?"])
+        img_i += 1
+        number_i += nb_numbers
 
 def create_outline(wlname,ilname,positives):
     rows = []
@@ -446,6 +512,7 @@ def main(batchdir, analysisdir):
     sort_for_false_positives = []
     sort_for_false_negatives_pos = []
     not_very_high = []
+    grand_outline = []
     stats = {
         "missing_numbers": 0,
         "missing_numbers_vol": 0,
@@ -455,11 +522,15 @@ def main(batchdir, analysisdir):
         "correct_numbers_vol": 0
     }
     for jsonlfn in jsonlfns:
-        analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high)
+        analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
-    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
+    with open("grand_outline.csv", 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+        for r in grand_outline:
+            writer.writerow(r)
 
 main("results/batch2/", "analyses/batch2/")
