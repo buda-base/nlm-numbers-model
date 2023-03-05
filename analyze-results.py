@@ -83,7 +83,8 @@ STRIKEDTHROUGH = [
     'I1NLM4304_0010299.jpg',
     'I1NLM4446_0010220.jpg',
     'I1NLM4934_0010336.jpg',
-    'I1NLM5003_0010173.jpg'
+    'I1NLM5003_0010173.jpg',
+    'I1NLM5790_0010196.jpg'
 ]
 
 DUPLICATES = [
@@ -114,7 +115,8 @@ DUPLICATES = [
     'I1NLM2682_0010176.jpg',
     'I1NLM4212_0010113.jpg',
     'I1NLM1484_0010117.jpg',
-    'I1NLM1804_0010185.jpg'
+    'I1NLM1804_0010185.jpg',
+    'I1NLM5763_0010215.jpg'
 ]
 
 IGNORE = ['I1NLM1511_0010199']
@@ -335,7 +337,7 @@ def get_images(jsonlfn):
 def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
-    #if wlname != "W1NLM100":
+    #if wlname != "W1NLM5790":
     #    return
     vinfo = VINFO[ilname]
     nb_numbers_expected = vinfo["nb_texts"]
@@ -449,7 +451,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives):
         elif img in QUAD:
             adjust += 3
     adjusted = len(numbers) == len(positives) + adjust
-    adjustment_lost = False
+    adjustment_lost = len(spos) > len(numbers)
     while img_i < len(spos) or number_i < len(numbers):
         img = "?"
         nb_numbers = 1
@@ -480,6 +482,8 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives):
         for j in range(nb_numbers):
             if number_i + j < len(numbers):
                 grand_outline.append([wlname,numbers[number_i+j], img,img if j < nb_numbers -1 else "?"])
+            else:
+                grand_outline.append([wlname,"?", img,img if j < nb_numbers -1 else "?"])
         img_i += 1
         number_i += nb_numbers
 
@@ -524,7 +528,7 @@ def main(batchdir, analysisdir):
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
-    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos2/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
