@@ -337,7 +337,7 @@ def get_images(jsonlfn):
 def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
-    #if wlname != "W1NLM5790":
+    #if wlname != "W1NLM113":
     #    return
     vinfo = VINFO[ilname]
     nb_numbers_expected = vinfo["nb_texts"]
@@ -395,7 +395,7 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         positives.add(ilname+"0001.jpg")
     #not_very_high+=list(nvh)
     positives = sorted(list(positives))
-    add_to_grand_outline(grand_outline, wlname, ilname, positives)
+    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
@@ -433,7 +433,7 @@ def download_images(imagelist, folder):
             print("couldn't download "+imgfname)
             print(e)
 
-def add_to_grand_outline(grand_outline, wlname,ilname,positives):
+def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
     numbers = VINFO[ilname]["numbers"]
     spos = sorted(list(positives))
     img_i = 0
@@ -451,7 +451,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives):
         elif img in QUAD:
             adjust += 3
     adjusted = len(numbers) == len(positives) + adjust
-    adjustment_lost = len(spos) > len(numbers)
+    adjustment_lost = len(spos) + adjust > len(numbers)
     while img_i < len(spos) or number_i < len(numbers):
         img = "?"
         nb_numbers = 1
