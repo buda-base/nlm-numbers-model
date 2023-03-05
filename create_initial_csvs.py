@@ -28,6 +28,16 @@ def read_winfos():
 
 WINFOS = read_winfos()
 
+def read_allw():
+    res = {}
+    with open("allw.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            res[row[0]] = row[1]
+    return res
+
+ALLW = read_allw()
+
 def get_s3_folder_prefix(wlname, image_group_lname):
     """
     gives the s3 prefix (~folder) in which the volume will be present.
@@ -79,12 +89,34 @@ def get_image_list_s3(wlname, image_group_lname):
 def create_initial_volume_csvs():
     global WINFOS
 
+    seenw = []
+
     for w, winfo in WINFOS.items():
+        seenw.append(w)
+        if w not in ALLW:
+            continue
         csvfname = 'imageinfos/'+w+'-'+winfo["i"]+'.csv'
         if Path(csvfname).is_file():
             print("skip "+csvfname)
             continue
         iil = get_image_list_s3(w, winfo["i"])
+        if iil is None:
+            print("cannot get image list for "+w)
+            continue
+        print("write "+csvfname)
+        with open(csvfname, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+            for i, imginfo in enumerate(iil):
+                writer.writerow([imginfo["filename"], str(i+1), imginfo["width"], imginfo["height"]])
+
+    for w, ig in ALLW.items():
+        if w in seenw:
+            continue
+        csvfname = 'imageinfos/'+w+'-'+ig+'.csv'
+        if Path(csvfname).is_file():
+            print("skip "+csvfname)
+            continue
+        iil = get_image_list_s3(w, ig)
         if iil is None:
             print("cannot get image list for "+w)
             continue
