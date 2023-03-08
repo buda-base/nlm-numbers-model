@@ -9,9 +9,11 @@ def get_volinfos():
     res = {}
     with open("nlm-volumeinfos.csv", newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
-        next(reader)
+        for i in range(5391):
+            next(reader)
         for row in reader:
             res[row[2]] = {"nb_texts": int(row[3]), "numbers": row[7].split(", ")}
+            #print(row[2])
     return res
 
 VINFO = get_volinfos()
@@ -84,7 +86,9 @@ STRIKEDTHROUGH = [
     'I1NLM4446_0010220.jpg',
     'I1NLM4934_0010336.jpg',
     'I1NLM5003_0010173.jpg',
-    'I1NLM5790_0010196.jpg'
+    'I1NLM5790_0010196.jpg',
+    'I1NLM5234_0010170.jpg',
+    'I1NLM5234_0010173.jpg'
 ]
 
 DUPLICATES = [
@@ -116,13 +120,15 @@ DUPLICATES = [
     'I1NLM4212_0010113.jpg',
     'I1NLM1484_0010117.jpg',
     'I1NLM1804_0010185.jpg',
-    'I1NLM5763_0010215.jpg'
+    'I1NLM5763_0010215.jpg',
+    'I1NLM3910_0010084.jpg'
 ]
 
 IGNORE = ['I1NLM1511_0010199']
 
 DOUBLE = [
     'I1NLM3870_0010041.jpg',
+    'I1NLM2350_0010077.jpg',
     'I1NLM2801_0010239.jpg',
     'I1NLM2801_0010330.jpg',
     'I1NLM3990_0010124.jpg',
@@ -270,6 +276,70 @@ DOUBLE = [
     'I1NLM5512_0010031.jpg',
     'I1NLM5523_0010070.jpg',
     'I1NLM5611_0010189.jpg',
+    'I1NLM2513_0010225.jpg',
+    'I1NLM2563_0010218.jpg',
+    "I1NLM2757_0010164.jpg",
+    'I1NLM2768_0010337.jpg',
+    'I1NLM2770_0010087.jpg',
+    'I1NLM2770_0010140.jpg',
+    'I1NLM2770_0010290.jpg',
+    'I1NLM3038_0010070.jpg',
+    'I1NLM3308_0010034.jpg',
+    'I1NLM3404_0010094.jpg',
+    'I1NLM3408_0010126.jpg',
+    'I1NLM3561_0010165.jpg',
+    'I1NLM3618_0010064.jpg',
+    'I1NLM3618_0010078.jpg',
+    'I1NLM3720_0010116.jpg',
+    'I1NLM3720_0010146.jpg',
+    'I1NLM3720_0010147.jpg',
+    'I1NLM3720_0010148.jpg',
+    'I1NLM3724_0010230.jpg',
+    'I1NLM3738_0010135.jpg',
+    'I1NLM3738_0010163.jpg',
+    'I1NLM3738_0010196.jpg',
+    'I1NLM3738_0010198.jpg',
+    'I1NLM3738_0010209.jpg',
+    'I1NLM3738_0010211.jpg',
+    'I1NLM3738_0010213.jpg',
+    'I1NLM3738_0010214.jpg',
+    'I1NLM3738_0010216.jpg',
+    'I1NLM3738_0010218.jpg',
+    'I1NLM3738_0010219.jpg',
+    'I1NLM3738_0010233.jpg',
+    'I1NLM3738_0010238.jpg',
+    'I1NLM3778_0010177.jpg',
+    'I1NLM3783_0010285.jpg',
+    'I1NLM3834_0010123.jpg',
+    'I1NLM3911_0010259.jpg',
+    'I1NLM3915_0010276.jpg',
+    'I1NLM3917_0010202.jpg',
+    'I1NLM3937_0010006.jpg',
+    'I1NLM3937_0010013.jpg',
+    'I1NLM4551_0010030.jpg',
+    'I1NLM4830_0010098.jpg',
+    'I1NLM4929_0010033.jpg',
+    'I1NLM5163_0010241.jpg',
+    'I1NLM5166_0010225.jpg',
+    'I1NLM5206_0010316.jpg',
+    'I1NLM5208_0010452.jpg',
+    'I1NLM5229_0010190.jpg',
+    'I1NLM5234_0010351.jpg',
+    'I1NLM5238_0010324.jpg',
+    'I1NLM5239_0010013.jpg',
+    'I1NLM5239_0010024.jpg',
+    'I1NLM5239_0010028.jpg',
+    'I1NLM5239_0010044.jpg',
+    'I1NLM5239_0010127.jpg',
+    'I1NLM5239_0010290.jpg',
+    'I1NLM5239_0010347.jpg',
+    'I1NLM5352_0010237.jpg',
+    'I1NLM5370_0010191.jpg',
+    'I1NLM5377_0010161.jpg',
+    'I1NLM5465_0010104.jpg',
+    'I1NLM5239_0010405.jpg',
+    'I1NLM5239_0010407.jpg',
+    'I1NLM5239_0010444.jpg'
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -277,7 +347,9 @@ NO_STAMP_TEXT_BREAK = [
     'I1NLM1581_0010230.jpg',
     'I1NLM5009_0010029.jpg',
     'I1NLM4077_0010239.jpg',
-    'I1NLM259_0010060.jpg'
+    'I1NLM259_0010060.jpg',
+    'I1NLM5484_0010267.jpg',
+    'I1NLM5484_0010267.jpg'
 ]
 
 TRIPLE = [
@@ -293,7 +365,12 @@ TRIPLE = [
     'I1NLM3990_0010126.jpg',
     'I1NLM3990_0010137.jpg',
     'I1NLM4004_0010215.jpg',
-    'I1NLM5190_0010379.jpg'
+    'I1NLM5190_0010379.jpg',
+    'I1NLM5747_0010232.jpg',
+    'I1NLM3738_0010201.jpg',
+    'I1NLM3738_0010212.jpg',
+    'I1NLM5239_0010348.jpg',
+    'I1NLM5722_0010271.jpg'
 ]
 
 QUAD = [
@@ -337,8 +414,11 @@ def get_images(jsonlfn):
 def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
-    #if wlname != "W1NLM113":
+    #if wlname != "W1NLM2371":
     #    return
+    if ilname not in VINFO:
+        #print(ilname)
+        return
     vinfo = VINFO[ilname]
     nb_numbers_expected = vinfo["nb_texts"]
     images = get_images(jsonlfn)
@@ -393,7 +473,7 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
             nvh.discard(img)
     if needsfirst:
         positives.add(ilname+"0001.jpg")
-    #not_very_high+=list(nvh)
+    not_very_high+=list(nvh)
     positives = sorted(list(positives))
     add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
@@ -407,6 +487,7 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         #for i in range(nb_numbers_expected, nb_detected):
         #    sort_for_false_positives + list(positives)
     elif nb_detected < nb_numbers_expected:
+        #print("tototototo")
         stats["missing_numbers"] += nb_numbers_expected - nb_detected
         stats["missing_numbers_vol"] += 1
         stats["correct_numbers"] += nb_detected
@@ -528,7 +609,7 @@ def main(batchdir, analysisdir):
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
-    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos2/")
+    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
@@ -536,4 +617,4 @@ def main(batchdir, analysisdir):
         for r in grand_outline:
             writer.writerow(r)
 
-main("results/batch2/", "analyses/batch2/")
+main("results/batch2/", "analyses/batch3/")
