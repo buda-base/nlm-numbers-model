@@ -77,8 +77,10 @@ def analyze_volume(batchdir, jsonlfn, stats):
             if image[0] in from_training_negatives:
                 t = "false_positives"
             stats[t].append(image[0])
-        if p < 0.65 and p > 0.35:
-            stats["ambiguous"].append(image[0])
+        if p < 0.65 and p > 0.5 and image[0] not in from_training_negatives:
+            stats["ambiguous_positives"].append(image[0])
+        if p > 0.35 and p < 0.5 and image[0] not in from_training_positives:
+            stats["ambiguous_negatives"].append(image[0])
 
 SAMPLE_SIZE = 1000
 
@@ -94,7 +96,8 @@ def main(batchdir):
         "false_positives": [],
         "true_negatives": [],
         "false_negatives": [],
-        "ambiguous": []
+        "ambiguous_positives": [],
+        "ambiguous_negatives": []
     }
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats)
@@ -106,7 +109,9 @@ def main(batchdir):
         print("tn,"+img)
     for img in get_sample(stats["false_negatives"]):
         print("fn,"+img)
-    for img in get_sample(stats["ambiguous"]):
-        print("a,"+img)
+    for img in get_sample(stats["ambiguous_positives"]):
+        print("ap,"+img)
+    for img in get_sample(stats["ambiguous_negatives"]):
+        print("an,"+img)
 
 main("results/batch2/")
