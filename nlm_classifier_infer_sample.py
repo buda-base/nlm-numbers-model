@@ -117,7 +117,7 @@ def predict_batch(image_batch):
 
     return batched_predictions
 
-def save_results(results, w, i):
+def save_results(results):
     jsonl_string = ""
 
     for batched_results in results:
@@ -146,20 +146,6 @@ def list_all_w():
                 res.append((row[1], row[2]))
     return natsorted(res)
 
-def get_image_list(w, i):
-    res = []
-    with open("imageinfos/"+w+"-"+i+".csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        # we can skip the first two images, we already looked at those
-        next(reader)
-        next(reader)
-        for row in reader:
-            height = int(row[3])
-            width = int(row[2])
-            if height < width:
-                res.append(row[0])
-    return res
-
 def run_imgfnamelist(imglist):
     batched_images = batch_data(imglist)
     accumulated_results = []
@@ -187,7 +173,7 @@ def run_everything():
     except Exception as e: 
         logging.exception(e)
     if results is not None:
-        save_results(results, w, i)
+        save_results(results)
 
 if __name__ == "__main__":
     run_everything()
