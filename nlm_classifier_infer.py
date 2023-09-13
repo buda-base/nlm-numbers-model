@@ -14,7 +14,7 @@ from PIL import Image
 import io
 import logging
 
-SESSION = boto3.Session()
+SESSION = boto3.Session(profile_name='image_processing')
 S3 = SESSION.client('s3')
 
 IMAGE_SIZE = 244
@@ -101,7 +101,7 @@ def predict_batch(s3prefix, image_batch):
     return batched_predictions
 
 def get_results_key(w, i):
-    return 'nlm-numbers/Aresults/'+MODEL_NAME+"/"+w+'-'+i+".jsonl"
+    return 'nlm-numbers/Bresults/'+MODEL_NAME+"/"+w+'-'+i+".jsonl"
 
 def save_results(results, w, i):
     jsonl_string = ""
