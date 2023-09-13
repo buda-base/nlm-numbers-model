@@ -30,8 +30,6 @@ Since the NLM cataloguers seem to have been very consistent in the way they wrot
 
 ## Preparing the training data
 
-
-
 obtaining a result similar to
 
 1636 -> double number
@@ -61,3 +59,23 @@ strange: I1NLM4038_0010001
 weird case: I1NLM511_0010366, I1NLM511_0010367
 
 I1NLM2548_0010035
+
+## Running the inference
+
+When a new batch of scans become available:
+
+##### list the w
+
+add the results of the following query to `allw.csv`:
+
+```sparql
+select ?w ?i {
+  ?w :inCollection bdr:PR1NLM00 .
+  ?wadm adm:adminAbout ?w ;
+        adm:status bda:StatusReleased .
+  ?w :instanceHasVolume ?i .
+  ?i :volumePagesTotal ?vpt .
+  FILTER(?vpt > 2)
+}
+```
+
