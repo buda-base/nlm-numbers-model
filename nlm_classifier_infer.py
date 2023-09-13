@@ -101,7 +101,7 @@ def predict_batch(s3prefix, image_batch):
     return batched_predictions
 
 def get_results_key(w, i):
-    return 'nlm-numbers/Bresults/'+MODEL_NAME+"/"+w+'-'+i+".jsonl"
+    return 'nlm-numbers/Aresults/'+MODEL_NAME+"/"+w+'-'+i+".jsonl"
 
 def save_results(results, w, i):
     jsonl_string = ""
