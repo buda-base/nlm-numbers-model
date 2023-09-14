@@ -82,3 +82,5 @@ select ?w ?i {
 run `create_initial_csvs.py`
 
 run `https://github.com/buda-base/buda-scripts/blob/main/import/NLM/create-ai-dataset.py` and copy `nlm-volumeinfos.csv` in this repository.
+
+run `nlm_classifier_infer.py` on a machine with GPU, and copy the new files in `s3://image-processing.bdrc.io/nlm-numbers/Aresults/xce_model/` in a directory in `results/`.
