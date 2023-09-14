@@ -140,6 +140,10 @@ DUPLICATES = [
 IGNORE = ['I1NLM1511_0010199']
 
 DOUBLE = [
+    'I1NLM6031_0010143.jpg',
+    'I1NLM6317_0010401.jpg',
+    'I1NLM6317_0010404.jpg',
+    'I1NLM6337_0010041.jpg',
     'I1NLM3870_0010041.jpg',
     'I1NLM2350_0010077.jpg',
     'I1NLM2801_0010239.jpg',
@@ -636,9 +640,9 @@ def main(batchdir, analysisdir):
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
-    download_images(sort_for_false_positives, analysisdir+"positives/")
+    #download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
-    #download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
