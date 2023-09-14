@@ -31,7 +31,7 @@ def get_irreg_before():
             res.append(row[0])
     return res
 
-IRREGULARITY_BEFORE = []
+IRREGULARITY_BEFORE = get_irreg_before()
 
 STRIKEDTHROUGH = [
     'I1NLM6676_0010239.jpg',
@@ -140,6 +140,21 @@ DUPLICATES = [
 IGNORE = ['I1NLM1511_0010199']
 
 DOUBLE = [
+    'I1NLM5878_0010136.jpg',
+    'I1NLM5879_0010096.jpg',
+    'I1NLM5879_0010135.jpg',
+    'I1NLM5881_0010082.jpg',
+    'I1NLM5901_0010256.jpg',
+    'I1NLM5943_0010125.jpg',
+    'I1NLM6080_0010209.jpg',
+    'I1NLM6404_0010146.jpg',
+    'I1NLM6409_0010205.jpg',
+    'I1NLM6459_0010064.jpg',
+    'I1NLM6156_0010078.jpg',
+    'I1NLM6156_0010162.jpg',
+    'I1NLM6304_0010097.jpg',
+    'I1NLM6304_0010099.jpg',
+    'I1NLM6337_0010041.jpg',
     'I1NLM6031_0010143.jpg',
     'I1NLM6317_0010401.jpg',
     'I1NLM6317_0010404.jpg',
@@ -396,7 +411,9 @@ TRIPLE = [
     'I1NLM5239_0010348.jpg',
     'I1NLM5722_0010271.jpg',
     'I1NLM5747_0010226.jpg',
-    'I1NLM5747_0010230.jpg'
+    'I1NLM5747_0010230.jpg',
+    'I1NLM6352_0010223.jpg',
+    'I1NLM6359_0010033.jpg'
 ]
 
 QUAD = [
@@ -641,9 +658,9 @@ def main(batchdir, analysisdir):
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
-    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
-    download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
+    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
