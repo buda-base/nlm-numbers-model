@@ -9,8 +9,9 @@ def get_volinfos():
     res = {}
     with open("nlm-volumeinfos.csv", newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
-        for i in range(5391):
-            next(reader)
+        next(reader)
+        #for i in range(5390):
+        #    next(reader)
         for row in reader:
             res[row[2]] = {"nb_texts": int(row[3]), "numbers": row[7].split(", ")}
             #print(row[2])
@@ -24,11 +25,21 @@ def get_irreg_before():
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             res.append(row[0])
+    with open("analyses/batch3/negative-pos-diff.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            res.append(row[0])
     return res
 
-IRREGULARITY_BEFORE = get_irreg_before()
+IRREGULARITY_BEFORE = []
 
 STRIKEDTHROUGH = [
+    'I1NLM6676_0010239.jpg',
+    'I1NLM6676_0010240.jpg',
+    'I1NLM6676_0010240.jpg',
+    'I1NLM6676_0010020.jpg',
+    'I1NLM5915_0010186.jpg',
+    'I1NLM6055_0010076.jpg',
     'I1NLM3081_0010104.jpg', 
     'I1NLM3486_0010199.jpg', 
     'I1NLM3852_0010276.jpg', 
@@ -88,7 +99,8 @@ STRIKEDTHROUGH = [
     'I1NLM5003_0010173.jpg',
     'I1NLM5790_0010196.jpg',
     'I1NLM5234_0010170.jpg',
-    'I1NLM5234_0010173.jpg'
+    'I1NLM5234_0010173.jpg',
+    'I1NLM5234_0010184.jpg'
 ]
 
 DUPLICATES = [
@@ -121,7 +133,8 @@ DUPLICATES = [
     'I1NLM1484_0010117.jpg',
     'I1NLM1804_0010185.jpg',
     'I1NLM5763_0010215.jpg',
-    'I1NLM3910_0010084.jpg'
+    'I1NLM3910_0010084.jpg',
+    'I1NLM6422_0010238.jpg'
 ]
 
 IGNORE = ['I1NLM1511_0010199']
@@ -339,7 +352,14 @@ DOUBLE = [
     'I1NLM5465_0010104.jpg',
     'I1NLM5239_0010405.jpg',
     'I1NLM5239_0010407.jpg',
-    'I1NLM5239_0010444.jpg'
+    'I1NLM5239_0010444.jpg',
+    'I1NLM2765_0010386.jpg',
+    'I1NLM2769_0010131.jpg',
+    'I1NLM2769_0010308.jpg',
+    'I1NLM2769_0010311.jpg',
+    'I1NLM2769_0010391.jpg',
+    'I1NLM3708_0010067.jpg',
+    'I1NLM5208_0010451.jpg'
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -370,11 +390,14 @@ TRIPLE = [
     'I1NLM3738_0010201.jpg',
     'I1NLM3738_0010212.jpg',
     'I1NLM5239_0010348.jpg',
-    'I1NLM5722_0010271.jpg'
+    'I1NLM5722_0010271.jpg',
+    'I1NLM5747_0010226.jpg',
+    'I1NLM5747_0010230.jpg'
 ]
 
 QUAD = [
     'I1NLM5190_0010400.jpg',
+    'I1NLM5747_0010229.jpg'
 ]
 
 TRAINING_DATA = {}
@@ -520,9 +543,10 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
     img_i = 0
     number_i = 0
     adjust = 0
+    irregs = []
     for img in positives:
         if img in IRREGULARITY_BEFORE:
-            adjust += 1
+            irregs.append(img)
         elif img in STRIKEDTHROUGH or img in DUPLICATES or img in IGNORE:
             adjust -= 1
         elif img in DOUBLE:
@@ -532,6 +556,10 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
         elif img in QUAD:
             adjust += 3
     adjusted = len(numbers) == len(positives) + adjust
+    ignore_irregs = adjusted
+    if not adjusted:
+        adjust += len(irregs)
+        adjusted = len(numbers) == len(positives) + adjust
     adjustment_lost = len(spos) + adjust > len(numbers)
     while img_i < len(spos) or number_i < len(numbers):
         img = "?"
@@ -552,7 +580,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
                 nb_numbers = 3
             elif img_orig in QUAD:
                 nb_numbers = 4
-            if img_orig in IRREGULARITY_BEFORE:
+            if img_orig in IRREGULARITY_BEFORE and not ignore_irregs:
                 if number_i < len(numbers):
                     grand_outline.append([wlname,numbers[number_i], "?",img])
                 number_i += 1
@@ -608,8 +636,8 @@ def main(batchdir, analysisdir):
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
-    #download_images(sort_for_false_positives, analysisdir+"positives/")
-    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    download_images(sort_for_false_positives, analysisdir+"positives/")
+    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
@@ -617,4 +645,4 @@ def main(batchdir, analysisdir):
         for r in grand_outline:
             writer.writerow(r)
 
-main("results/batch2/", "analyses/batch3/")
+main("results/batch3/", "analyses/batch3/")
