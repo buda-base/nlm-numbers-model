@@ -81,14 +81,6 @@ select ?w ?i {
 
 run `create_initial_csvs.py`
 
-run `https://github.com/buda-base/buda-scripts/blob/main/import/NLM/create-ai-dataset.py` and copy `nlm-volumeinfos.csv` in this repository.
-
-run `nlm_classifier_infer.py` on a machine with GPU, and copy the new files in `s3://image-processing.bdrc.io/nlm-numbers/Aresults/xce_model/` in a directory in `results/`.
-
-run `analyze-results.py` a few times, looking at the different lists for debug, in the end this produces `grand-outline.csv`.
-
-add the results of the following query to `allw.csv`:
-
 run the following query and save in `buda-scripts/import/NLM/w-vpt.csv`
 
 ```sparql
@@ -101,3 +93,32 @@ select ?w ?vpt {
   FILTER(?vpt > 2)
 }
 ```
+
+run `buda-scripts/import/NLM/create-ai-dataset.py` and copy `nlm-volumeinfos.csv` in this repository.
+
+run `nlm_classifier_infer.py` on a machine with GPU, and copy the new files in `s3://image-processing.bdrc.io/nlm-numbers/Aresults/xce_model/` in a directory in `results/`.
+
+run the following query and save the results in `w_to_analyze.csv`:
+
+```sparql
+select ?w {
+  ?w :inCollection bdr:PR1NLM00 .
+  FILTER(strstarts(str(?w), 'http://purl.bdrc.io/resource/W1NLM'))
+  FILTER(exists {
+    ?wadm adm:adminAbout ?w ;
+          adm:status bda:StatusReleased .
+    ?w :instanceHasVolume ?i .
+    ?i :volumePagesTotal ?vpt .
+    FILTER(?vpt > 2)
+  })
+  FILTER(not exists {
+    ?w :instanceReproductionOf ?mw .
+    graph ?og {
+      ?mw :hasPart ?mw2 .
+    }
+    FILTER(strstarts(str(?og), 'http://purl.bdrc.io/graph/O1NLM'))
+  })
+}
+```
+
+run `analyze-results.py` a few times, looking at the different lists for debug, in the end this produces `grand-outline.csv`.
