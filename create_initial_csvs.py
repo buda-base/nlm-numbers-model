@@ -106,8 +106,16 @@ def create_initial_volume_csvs():
         print("write "+csvfname)
         with open(csvfname, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
-            for i, imginfo in enumerate(iil):
-                writer.writerow([imginfo["filename"], str(i+1), imginfo["width"], imginfo["height"]])
+            i = 0
+            for imginfo in iil:
+                if imginfo["filename"].endswith(".json"):
+                    continue
+                i += 1
+                if "width" not in imginfo:
+                    print("imginfo broken for "+w+"-"+wi)
+                    print(imginfo)
+                else:
+                    writer.writerow([imginfo["filename"], str(i), imginfo["width"], imginfo["height"]])
 
     for w, ig in ALLW.items():
         if w in seenw:
@@ -123,7 +131,11 @@ def create_initial_volume_csvs():
         print("write "+csvfname)
         with open(csvfname, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
-            for i, imginfo in enumerate(iil):
-                writer.writerow([imginfo["filename"], str(i+1), imginfo["width"], imginfo["height"]])
+            i = 0
+            for imginfo in iil:
+                if imginfo["filename"].endswith(".json"):
+                    continue
+                i += 1
+                writer.writerow([imginfo["filename"], str(i), imginfo["width"], imginfo["height"]])
 
 create_initial_volume_csvs()
