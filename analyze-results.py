@@ -30,6 +30,9 @@ def get_irreg_before():
 IRREGULARITY_BEFORE = get_irreg_before()
 
 STRIKEDTHROUGH = [
+    'I1NLM6685_0010058.jpg',
+    'I1NLM7472_0010198.jpg',
+    'I1NLM6712_0010230.jpg',
     'I1NLM7495_0010208.jpg',
     'I1NLM7120_0010021.jpg',
     'I1NLM6676_0010239.jpg',
@@ -138,6 +141,8 @@ DUPLICATES = [
 IGNORE = ['I1NLM1511_0010199']
 
 DOUBLE = [
+    'I1NLM7087_0010137.jpg',
+    'I1NLM7087_0010144.jpg',
     'I1NLM5878_0010136.jpg',
     'I1NLM5879_0010096.jpg',
     'I1NLM5879_0010135.jpg',
@@ -661,9 +666,9 @@ def main(batchdir, analysisdir):
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
-    download_images(sort_for_false_positives, analysisdir+"positives/")
+    #download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
-    #download_images(not_very_high, analysisdir+"nvh/")
+    download_images(not_very_high, analysisdir+"nvh/")
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
