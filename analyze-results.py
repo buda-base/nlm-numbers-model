@@ -21,10 +21,6 @@ VINFO = get_volinfos()
 
 def get_irreg_before():
     res = []
-    with open("analyses/batch2/negative-pos-diff.csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            res.append(row[0])
     with open("analyses/batch3/negative-pos-diff.csv", newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
@@ -34,6 +30,8 @@ def get_irreg_before():
 IRREGULARITY_BEFORE = get_irreg_before()
 
 STRIKEDTHROUGH = [
+    'I1NLM7495_0010208.jpg',
+    'I1NLM7120_0010021.jpg',
     'I1NLM6676_0010239.jpg',
     'I1NLM6676_0010240.jpg',
     'I1NLM6676_0010240.jpg',
@@ -378,7 +376,8 @@ DOUBLE = [
     'I1NLM2769_0010311.jpg',
     'I1NLM2769_0010391.jpg',
     'I1NLM3708_0010067.jpg',
-    'I1NLM5208_0010451.jpg'
+    'I1NLM5208_0010451.jpg',
+    'I1NLM7120_0010257.jpg'
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -455,7 +454,7 @@ def get_images(jsonlfn):
             res.append(json.loads(l))
     return res
 
-def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline):
+def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline, positives_threshold=0.9, negatives_threshold=0.0):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
     #if wlname != "W1NLM2371":
@@ -480,9 +479,9 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         has_number = float(image[2]) >= P_LIMIT
         if has_number:
             positives.add(image[0])
-            if float(image[2]) <= 0.9:
+            if float(image[2]) <= positives_threshold:
                 nvh.add(image[0])
-        elif float(image[2]) > 0:
+        elif float(image[2]) > negatives_threshold:
             less_positives.add(image[0])
     from_training = []
     needsfirst = False
@@ -519,8 +518,11 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         positives.add(ilname+"0001.jpg")
     not_very_high+=list(nvh)
     positives = sorted(list(positives))
-    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
+    # this condition produces the outline for review only
+    #if nb_detected != nb_numbers_expected:
+    #    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
+    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
         stats["additional_numbers_vol"] += 1
@@ -546,6 +548,7 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         stats["correct_numbers_vol"] += 1
 
 def download_images(imagelist, folder):
+    Path(folder).mkdir(parents=True, exist_ok=True)
     for imgfname in tqdm(sorted(imagelist)):
         if Path(folder+imgfname).is_file():
             continue
@@ -616,6 +619,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
                 grand_outline.append([wlname,"?", img,img if j < nb_numbers -1 else "?"])
         img_i += 1
         number_i += nb_numbers
+        #grand_outline.append([])
 
 def create_outline(wlname,ilname,positives):
     rows = []
@@ -640,7 +644,7 @@ def create_outline(wlname,ilname,positives):
 
 
 def main(batchdir, analysisdir):
-    jsonlfns = sorted(glob(batchdir+"*.jsonl"))
+    jsonlfns = sorted(glob(batchdir+"*.jsonl"))[:1000]
     sort_for_false_negatives = []
     sort_for_false_positives = []
     sort_for_false_negatives_pos = []
@@ -657,7 +661,7 @@ def main(batchdir, analysisdir):
     for jsonlfn in jsonlfns:
         analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
     print(stats)
-    #download_images(sort_for_false_positives, analysisdir+"positives/")
+    download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
@@ -666,4 +670,4 @@ def main(batchdir, analysisdir):
         for r in grand_outline:
             writer.writerow(r)
 
-main("results/batch3/", "analyses/batch3/")
+main("results/batch4/", "analyses/batch4/")
