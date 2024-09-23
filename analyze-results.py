@@ -30,6 +30,8 @@ def get_irreg_before():
 IRREGULARITY_BEFORE = get_irreg_before()
 
 STRIKEDTHROUGH = [
+    'I1NLM6712_0010230.jpg',
+    'I1NLM7472_0010198.jpg',
     'I1NLM6685_0010058.jpg',
     'I1NLM7472_0010198.jpg',
     'I1NLM6712_0010230.jpg',
@@ -141,7 +143,52 @@ DUPLICATES = [
 IGNORE = ['I1NLM1511_0010199']
 
 DOUBLE = [
+    'I1NLM6915_0010164.jpg',
+    'I1NLM7541_0010194.jpg',
+    'I1NLM7541_0010197.jpg',
+    'I1NLM7541_0010208.jpg',
+    'I1NLM7541_0010340.jpg',
+    'I1NLM7545_0010005.jpg',
+    'I1NLM7545_0010009.jpg',
+    'I1NLM7545_0010016.jpg',
+    'I1NLM7545_0010018.jpg',
+    'I1NLM7545_0010023.jpg',
+    'I1NLM7545_0010030.jpg',
+    'I1NLM7545_0010094.jpg',
+    'I1NLM7545_0010202.jpg',
+    'I1NLM7592_0010292.jpg',
+    'I1NLM7592_0010293.jpg',
+    'I1NLM7621_0010272.jpg',
+    'I1NLM6915_0010177.jpg',
+    'I1NLM6915_0010185.jpg',
+    'I1NLM7011_0010180.jpg',
+    'I1NLM7011_0010181.jpg',
+    'I1NLM7035_0010083.jpg',
+    'I1NLM7041_0010141.jpg',
     'I1NLM7087_0010137.jpg',
+    'I1NLM7087_0010143.jpg',
+    'I1NLM7094_0010192.jpg',
+    'I1NLM7124_0010203.jpg',
+    'I1NLM7139_0010077.jpg',
+    'I1NLM7182_0010012.jpg',
+    'I1NLM7182_0010024.jpg',
+    'I1NLM7182_0010026.jpg',
+    'I1NLM7182_0010032.jpg',
+    'I1NLM7295_0010087.jpg',
+    'I1NLM7295_0010195.jpg',
+    'I1NLM7422_0010276.jpg',
+    'I1NLM7087_0010144.jpg',
+    'I1NLM6158_0010074.jpg',
+    'I1NLM6159_0010017.jpg',
+    'I1NLM6159_0010108.jpg',
+    'I1NLM6160_0010185.jpg',
+    'I1NLM6160_0010208.jpg',
+    'I1NLM6160_0010279.jpg',
+    'I1NLM6160_0010282.jpg',
+    'I1NLM7087_0010137.jpg',
+    'I1NLM6579_0010342.jpg',
+    'I1NLM6580_0010143.jpg',
+    'I1NLM6630_0010275.jpg',
     'I1NLM7087_0010144.jpg',
     'I1NLM5878_0010136.jpg',
     'I1NLM5879_0010096.jpg',
@@ -397,6 +444,7 @@ NO_STAMP_TEXT_BREAK = [
 
 TRIPLE = [
     'I1NLM4033_0010297.jpg',
+    'I1NLM7545_0010012.jpg',
     'I1NLM3990_0010126.jpg',
     "I1NLM446_0010147.jpg",
     "I1NLM481_0010061.jpg",
@@ -668,8 +716,8 @@ def main(batchdir, analysisdir):
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
-    download_images(not_very_high, analysisdir+"nvh/")
-    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    #download_images(not_very_high, analysisdir+"nvh/")
+    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("grand_outline.csv", 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
