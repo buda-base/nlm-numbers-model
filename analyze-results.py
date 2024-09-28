@@ -19,9 +19,19 @@ def get_volinfos():
 
 VINFO = get_volinfos()
 
+def get_final_pg_numbers():
+    res = {}
+    with open('w-vpt.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            res[row[0]] = row[1]
+    return res
+
+FINAL_PG_NUMBERS = get_final_pg_numbers()
+
 def get_irreg_before():
     res = []
-    with open("analyses/batch3/negative-pos-diff.csv", newline='') as csvfile:
+    with open("analyses/batch4/npos-diff.txt", newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             res.append(row[0])
@@ -507,7 +517,7 @@ def get_images(jsonlfn):
             res.append(json.loads(l))
     return res
 
-def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline, positives_threshold=0.9, negatives_threshold=0.0):
+def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline, grand_outline_needs_review, positives_threshold=0.9, negatives_threshold=0.0):
     basefn = jsonlfn[len(batchdir):-6]
     [wlname, ilname] = basefn.split("-")
     #if wlname != "W1NLM2371":
@@ -572,10 +582,18 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
     not_very_high+=list(nvh)
     positives = sorted(list(positives))
     nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
-    # this condition produces the outline for review only
-    #if nb_detected != nb_numbers_expected:
-    #    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
-    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
+    vol_final_pg_num = "?"
+    if wlname not in FINAL_PG_NUMBERS:
+        print("error: %s not in w-vpt.csv")
+    else:
+        vol_final_pg_num = FINAL_PG_NUMBERS[wlname]
+    rows = get_rows(wlname, ilname, positives, len(images), vol_final_pg_num)
+    if nb_detected == nb_numbers_expected:
+        grand_outline.extend(rows)
+        grand_outline.append([])
+    else:
+        grand_outline_needs_review.extend(rows)
+        grand_outline_needs_review.append([])
     if nb_detected > nb_numbers_expected:
         stats["additional_numbers"] += nb_detected - nb_numbers_expected
         stats["additional_numbers_vol"] += 1
@@ -614,7 +632,9 @@ def download_images(imagelist, folder):
             print("couldn't download "+imgfname)
             print(e)
 
-def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
+def get_rows(wlname,ilname,positives,nb_images,vol_final_pg_num):
+    # returns the rows to add to the outline
+    rows = []
     numbers = VINFO[ilname]["numbers"]
     spos = sorted(list(positives))
     img_i = 0
@@ -650,7 +670,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
                 img_i += 1
                 continue
             if img_i > 0 and img_orig not in IRREGULARITY_BEFORE:
-                grand_outline[-1][3] = img
+                rows[-1][3] = img
             if img_orig in DOUBLE:
                 nb_numbers = 2
             elif img_orig in TRIPLE:
@@ -659,20 +679,21 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
                 nb_numbers = 4
             if img_orig in IRREGULARITY_BEFORE and not ignore_irregs:
                 if number_i < len(numbers):
-                    grand_outline.append([wlname,numbers[number_i], "?",img])
+                    rows.append([wlname,numbers[number_i], "?",img])
                 number_i += 1
                 if not adjusted:
                     adjustment_lost = True
         else:
-            grand_outline[-1][3] = "?"
+            rows[-1][3] = "?"
         for j in range(nb_numbers):
             if number_i + j < len(numbers):
-                grand_outline.append([wlname,numbers[number_i+j], img,img if j < nb_numbers -1 else "?"])
+                rows.append([wlname,numbers[number_i+j], img,img if j < nb_numbers -1 else "?"])
             else:
-                grand_outline.append([wlname,"?", img,img if j < nb_numbers -1 else "?"])
+                rows.append([wlname,"?", img,img if j < nb_numbers -1 else "?"])
         img_i += 1
         number_i += nb_numbers
-        #grand_outline.append([])
+    rows[-1][3] = vol_final_pg_num
+    return rows
 
 def create_outline(wlname,ilname,positives):
     rows = []
@@ -697,12 +718,13 @@ def create_outline(wlname,ilname,positives):
 
 
 def main(batchdir, analysisdir):
-    jsonlfns = sorted(glob(batchdir+"*.jsonl"))[:1000]
+    jsonlfns = sorted(glob(batchdir+"*.jsonl"))[1000:]
     sort_for_false_negatives = []
     sort_for_false_positives = []
     sort_for_false_negatives_pos = []
     not_very_high = []
     grand_outline = []
+    grand_outline_needs_review = []
     stats = {
         "missing_numbers": 0,
         "missing_numbers_vol": 0,
@@ -712,15 +734,21 @@ def main(batchdir, analysisdir):
         "correct_numbers_vol": 0
     }
     for jsonlfn in jsonlfns:
-        analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
+        analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline, grand_outline_needs_review)
     print(stats)
     #download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
     download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
-    with open("grand_outline.csv", 'w', newline='') as csvfile:
+    with open("outline.csv", 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
             writer.writerow(r)
+    print("outline with all numbers ok written on outline.csv")
+    with open("outline_needs_review.csv", 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+        for r in grand_outline_needs_review:
+            writer.writerow(r)
+    print("outline for review written on outline_needs_review.csv")
 
-main("results/batch4/", "analyses/batch4/")
+main("results/batch4/", "analyses/batch5/")
