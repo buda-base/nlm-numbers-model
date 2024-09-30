@@ -5,522 +5,542 @@ from tqdm import tqdm
 from create_images import get_processed_image
 from pathlib import Path
 
+
 def get_volinfos():
     res = {}
-    with open("nlm-volumeinfos.csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+    with open("nlm-volumeinfos.csv", newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
         next(reader)
-        #for i in range(5390):
+        # for i in range(5390):
         #    next(reader)
         for row in reader:
             res[row[2]] = {"nb_texts": int(row[3]), "numbers": row[7].split(", ")}
-            #print(row[2])
+            # print(row[2])
     return res
+
 
 VINFO = get_volinfos()
 
+
 def get_irreg_before():
     res = []
-    with open("analyses/batch3/negative-pos-diff.csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+    with open("analyses/batch4/_npos_diff", newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             res.append(row[0])
     return res
 
+
 IRREGULARITY_BEFORE = get_irreg_before()
 
 STRIKEDTHROUGH = [
-    'I1NLM6712_0010230.jpg',
-    'I1NLM7472_0010198.jpg',
-    'I1NLM6685_0010058.jpg',
-    'I1NLM7472_0010198.jpg',
-    'I1NLM6712_0010230.jpg',
-    'I1NLM7495_0010208.jpg',
-    'I1NLM7120_0010021.jpg',
-    'I1NLM6676_0010239.jpg',
-    'I1NLM6676_0010240.jpg',
-    'I1NLM6676_0010240.jpg',
-    'I1NLM6676_0010020.jpg',
-    'I1NLM5915_0010186.jpg',
-    'I1NLM6055_0010076.jpg',
-    'I1NLM3081_0010104.jpg', 
-    'I1NLM3486_0010199.jpg', 
-    'I1NLM3852_0010276.jpg', 
-    'I1NLM3870_0010013.jpg', 
-    'I1NLM3870_0010037.jpg', 
-    'I1NLM4202_0010064.jpg', 
-    'I1NLM4191_0010116.jpg', 
-    'I1NLM4246_0010209.jpg',
-    'I1NLM4446_0010220.jpg',
-    'I1NLM5003_0010173.jpg',
-    'I1NLM4316_0010040.jpg', 
-    'I1NLM4669_0010324.jpg', 
-    'I1NLM5148_0010293.jpg', 
-    'I1NLM5329_0010257.jpg', 
-    'I1NLM5414_0010157.jpg', 
-    'I1NLM3478_0010169.jpg', 
-    'I1NLM3486_0010199.jpg', 
-    'I1NLM3645_0010259.jpg', 
-    'I1NLM3852_0010276.jpg',
-    'I1NLM2131_0010193.jpg',
-    'I1NLM4992_0010190.jpg',
-    'I1NLM970_0010156.jpg',
-    'I1NLM3510_0010228.jpg',
-    'I1NLM1634_0010257.jpg',
-    'I1NLM1682_0010076.jpg',
-    'I1NLM4684_0010279.jpg',
-    'I1NLM4637_0010187.jpg',
-    'I1NLM5336_0010253.jpg',
-    'I1NLM2801_0010169.jpg',
-    'I1NLM1713_0010200.jpg',
-    'I1NLM4202_0010276.jpg',
-    'I1NLM43_0010231.jpg',
-    'I1NLM50_0010125.jpg',
-    'I1NLM4773_0010045.jpg',
-    'I1NLM1708_0010281.jpg',
-    'I1NLM3592_0010134.jpg',
-    'I1NLM1140_0010258.jpg',
-    'I1NLM5304_0010244.jpg',
-    'I1NLM2169_0010058.jpg',
-    'I1NLM4626_0010207.jpg',
-    'I1NLM270_0010021.jpg',
-    'I1NLM4881_0010099.jpg',
-    'I1NLM5450_0010071.jpg',
-    'I1NLM3641_0010270.jpg',
-    'I1NLM1777_0010124.jpg',
-    'I1NLM4415_0010217.jpg',
-    'I1NLM22_0010119.jpg',
-    'I1NLM4202_0010064.jpg',
-    'I1NLM1009_0010075.jpg',
-    'I1NLM349_0010024.jpg',
-    'I1NLM2038_0010267.jpg',
-    'I1NLM4373_0010084.jpg',
-    'I1NLM2014_0010112.jpg',
-    'I1NLM4304_0010299.jpg',
-    'I1NLM4446_0010220.jpg',
-    'I1NLM4934_0010336.jpg',
-    'I1NLM5003_0010173.jpg',
-    'I1NLM5790_0010196.jpg',
-    'I1NLM5234_0010170.jpg',
-    'I1NLM5234_0010173.jpg',
-    'I1NLM5234_0010184.jpg'
+    "I1NLM6712_0010230.jpg",
+    "I1NLM7472_0010198.jpg",
+    "I1NLM6685_0010058.jpg",
+    "I1NLM7472_0010198.jpg",
+    "I1NLM6712_0010230.jpg",
+    "I1NLM7495_0010208.jpg",
+    "I1NLM7120_0010021.jpg",
+    "I1NLM6676_0010239.jpg",
+    "I1NLM6676_0010240.jpg",
+    "I1NLM6676_0010240.jpg",
+    "I1NLM6676_0010020.jpg",
+    "I1NLM5915_0010186.jpg",
+    "I1NLM6055_0010076.jpg",
+    "I1NLM3081_0010104.jpg",
+    "I1NLM3486_0010199.jpg",
+    "I1NLM3852_0010276.jpg",
+    "I1NLM3870_0010013.jpg",
+    "I1NLM3870_0010037.jpg",
+    "I1NLM4202_0010064.jpg",
+    "I1NLM4191_0010116.jpg",
+    "I1NLM4246_0010209.jpg",
+    "I1NLM4446_0010220.jpg",
+    "I1NLM5003_0010173.jpg",
+    "I1NLM4316_0010040.jpg",
+    "I1NLM4669_0010324.jpg",
+    "I1NLM5148_0010293.jpg",
+    "I1NLM5329_0010257.jpg",
+    "I1NLM5414_0010157.jpg",
+    "I1NLM3478_0010169.jpg",
+    "I1NLM3486_0010199.jpg",
+    "I1NLM3645_0010259.jpg",
+    "I1NLM3852_0010276.jpg",
+    "I1NLM2131_0010193.jpg",
+    "I1NLM4992_0010190.jpg",
+    "I1NLM970_0010156.jpg",
+    "I1NLM3510_0010228.jpg",
+    "I1NLM1634_0010257.jpg",
+    "I1NLM1682_0010076.jpg",
+    "I1NLM4684_0010279.jpg",
+    "I1NLM4637_0010187.jpg",
+    "I1NLM5336_0010253.jpg",
+    "I1NLM2801_0010169.jpg",
+    "I1NLM1713_0010200.jpg",
+    "I1NLM4202_0010276.jpg",
+    "I1NLM43_0010231.jpg",
+    "I1NLM50_0010125.jpg",
+    "I1NLM4773_0010045.jpg",
+    "I1NLM1708_0010281.jpg",
+    "I1NLM3592_0010134.jpg",
+    "I1NLM1140_0010258.jpg",
+    "I1NLM5304_0010244.jpg",
+    "I1NLM2169_0010058.jpg",
+    "I1NLM4626_0010207.jpg",
+    "I1NLM270_0010021.jpg",
+    "I1NLM4881_0010099.jpg",
+    "I1NLM5450_0010071.jpg",
+    "I1NLM3641_0010270.jpg",
+    "I1NLM1777_0010124.jpg",
+    "I1NLM4415_0010217.jpg",
+    "I1NLM22_0010119.jpg",
+    "I1NLM4202_0010064.jpg",
+    "I1NLM1009_0010075.jpg",
+    "I1NLM349_0010024.jpg",
+    "I1NLM2038_0010267.jpg",
+    "I1NLM4373_0010084.jpg",
+    "I1NLM2014_0010112.jpg",
+    "I1NLM4304_0010299.jpg",
+    "I1NLM4446_0010220.jpg",
+    "I1NLM4934_0010336.jpg",
+    "I1NLM5003_0010173.jpg",
+    "I1NLM5790_0010196.jpg",
+    "I1NLM5234_0010170.jpg",
+    "I1NLM5234_0010173.jpg",
+    "I1NLM5234_0010184.jpg",
 ]
 
 DUPLICATES = [
-    'I1NLM113_0010148.jpg',
-    'I1NLM2261_0010195.jpg',
-    'I1NLM4416_0010170.jpg',
-    'I1NLM2656_0010083.jpg',
-    'I1NLM1158_0010219.jpg',
-    'I1NLM48_0010376.jpg',
-    'I1NLM1646_0010249.jpg',
-    'I1NLM4182_0010193.jpg',
-    'I1NLM1484_0010065.jpg',
-    'I1NLM1683_0010193.jpg',
-    'I1NLM1960_0010220.jpg',
-    'I1NLM4747_0010189.jpg',
-    'I1NLM4785_0010318.jpg',
-    'I1NLM3891_0010204.jpg',
-    'I1NLM212_0010123.jpg',
-    'I1NLM3480_0010069.jpg',
-    'I1NLM1625_0010055.jpg',
-    'I1NLM1674_0010171.jpg',
-    'I1NLM4776_0010098.jpg',
-    'I1NLM1484_0010117.jpg',
-    'I1NLM3481_0010178.jpg',
-    'I1NLM730_0010115.jpg',
-    'I1NLM5171_0010130.jpg',
-    'I1NLM186_0010208.jpg',
-    'I1NLM2682_0010176.jpg',
-    'I1NLM4212_0010113.jpg',
-    'I1NLM1484_0010117.jpg',
-    'I1NLM1804_0010185.jpg',
-    'I1NLM5763_0010215.jpg',
-    'I1NLM3910_0010084.jpg',
-    'I1NLM6422_0010238.jpg'
+    "I1NLM113_0010148.jpg",
+    "I1NLM2261_0010195.jpg",
+    "I1NLM4416_0010170.jpg",
+    "I1NLM2656_0010083.jpg",
+    "I1NLM1158_0010219.jpg",
+    "I1NLM48_0010376.jpg",
+    "I1NLM1646_0010249.jpg",
+    "I1NLM4182_0010193.jpg",
+    "I1NLM1484_0010065.jpg",
+    "I1NLM1683_0010193.jpg",
+    "I1NLM1960_0010220.jpg",
+    "I1NLM4747_0010189.jpg",
+    "I1NLM4785_0010318.jpg",
+    "I1NLM3891_0010204.jpg",
+    "I1NLM212_0010123.jpg",
+    "I1NLM3480_0010069.jpg",
+    "I1NLM1625_0010055.jpg",
+    "I1NLM1674_0010171.jpg",
+    "I1NLM4776_0010098.jpg",
+    "I1NLM1484_0010117.jpg",
+    "I1NLM3481_0010178.jpg",
+    "I1NLM730_0010115.jpg",
+    "I1NLM5171_0010130.jpg",
+    "I1NLM186_0010208.jpg",
+    "I1NLM2682_0010176.jpg",
+    "I1NLM4212_0010113.jpg",
+    "I1NLM1484_0010117.jpg",
+    "I1NLM1804_0010185.jpg",
+    "I1NLM5763_0010215.jpg",
+    "I1NLM3910_0010084.jpg",
+    "I1NLM6422_0010238.jpg",
 ]
 
-IGNORE = ['I1NLM1511_0010199']
+IGNORE = ["I1NLM1511_0010199"]
 
 DOUBLE = [
-    'I1NLM6915_0010164.jpg',
-    'I1NLM7541_0010194.jpg',
-    'I1NLM7541_0010197.jpg',
-    'I1NLM7541_0010208.jpg',
-    'I1NLM7541_0010340.jpg',
-    'I1NLM7545_0010005.jpg',
-    'I1NLM7545_0010009.jpg',
-    'I1NLM7545_0010016.jpg',
-    'I1NLM7545_0010018.jpg',
-    'I1NLM7545_0010023.jpg',
-    'I1NLM7545_0010030.jpg',
-    'I1NLM7545_0010094.jpg',
-    'I1NLM7545_0010202.jpg',
-    'I1NLM7592_0010292.jpg',
-    'I1NLM7592_0010293.jpg',
-    'I1NLM7621_0010272.jpg',
-    'I1NLM6915_0010177.jpg',
-    'I1NLM6915_0010185.jpg',
-    'I1NLM7011_0010180.jpg',
-    'I1NLM7011_0010181.jpg',
-    'I1NLM7035_0010083.jpg',
-    'I1NLM7041_0010141.jpg',
-    'I1NLM7087_0010137.jpg',
-    'I1NLM7087_0010143.jpg',
-    'I1NLM7094_0010192.jpg',
-    'I1NLM7124_0010203.jpg',
-    'I1NLM7139_0010077.jpg',
-    'I1NLM7182_0010012.jpg',
-    'I1NLM7182_0010024.jpg',
-    'I1NLM7182_0010026.jpg',
-    'I1NLM7182_0010032.jpg',
-    'I1NLM7295_0010087.jpg',
-    'I1NLM7295_0010195.jpg',
-    'I1NLM7422_0010276.jpg',
-    'I1NLM7087_0010144.jpg',
-    'I1NLM6158_0010074.jpg',
-    'I1NLM6159_0010017.jpg',
-    'I1NLM6159_0010108.jpg',
-    'I1NLM6160_0010185.jpg',
-    'I1NLM6160_0010208.jpg',
-    'I1NLM6160_0010279.jpg',
-    'I1NLM6160_0010282.jpg',
-    'I1NLM7087_0010137.jpg',
-    'I1NLM6579_0010342.jpg',
-    'I1NLM6580_0010143.jpg',
-    'I1NLM6630_0010275.jpg',
-    'I1NLM7087_0010144.jpg',
-    'I1NLM5878_0010136.jpg',
-    'I1NLM5879_0010096.jpg',
-    'I1NLM5879_0010135.jpg',
-    'I1NLM5881_0010082.jpg',
-    'I1NLM5901_0010256.jpg',
-    'I1NLM5943_0010125.jpg',
-    'I1NLM6080_0010209.jpg',
-    'I1NLM6404_0010146.jpg',
-    'I1NLM6409_0010205.jpg',
-    'I1NLM6459_0010064.jpg',
-    'I1NLM6156_0010078.jpg',
-    'I1NLM6156_0010162.jpg',
-    'I1NLM6304_0010097.jpg',
-    'I1NLM6304_0010099.jpg',
-    'I1NLM6337_0010041.jpg',
-    'I1NLM6031_0010143.jpg',
-    'I1NLM6317_0010401.jpg',
-    'I1NLM6317_0010404.jpg',
-    'I1NLM6337_0010041.jpg',
-    'I1NLM3870_0010041.jpg',
-    'I1NLM2350_0010077.jpg',
-    'I1NLM2801_0010239.jpg',
-    'I1NLM2801_0010330.jpg',
-    'I1NLM3990_0010124.jpg',
-    'I1NLM4033_0010278.jpg',
-    'I1NLM4033_0010293.jpg',
-    'I1NLM4033_0010294.jpg',
-    'I1NLM5512_0010024.jpg',
-    'I1NLM4033_0010295.jpg',
-    'I1NLM4033_0010296.jpg',
-    'I1NLM137_0010112.jpg',
-    'I1NLM150_0010192.jpg',
-    'I1NLM150_0010193.jpg'
-    'I1NLM236_0010112.jpg',
-    'I1NLM252_0010024.jpg',
-    'I1NLM257_0010030.jpg',
-    'I1NLM259_0010012.jpg',
-    'I1NLM259_0010045.jpg',
-    'I1NLM260_0010013.jpg',
-    'I1NLM260_0010047.jpg',
-    'I1NLM280_0010077.jpg',
-    'I1NLM365_0010326.jpg',
-    'I1NLM418_0010064.jpg',
-    'I1NLM418_0010187.jpg',
-    'I1NLM446_0010147.jpg',
-    'I1NLM446_0010159.jpg',
-    'I1NLM481_0010058.jpg',
-    'I1NLM481_0010060.jpg',
-    'I1NLM481_0010062.jpg',
-    'I1NLM481_0010065.jpg',
-    'I1NLM481_0010069.jpg',
-    'I1NLM554_0010013.jpg',
-    'I1NLM554_0010067.jpg',
-    'I1NLM572_0010019.jpg',
-    'I1NLM572_0010044.jpg',
-    'I1NLM592_0010144.jpg',
-    'I1NLM602_0010203.jpg',
-    'I1NLM616_0010049.jpg',
-    'I1NLM638_0010184.jpg',
-    'I1NLM653_0010094.jpg',
-    'I1NLM655_0010204.jpg',
-    'I1NLM655_0010209.jpg',
-    'I1NLM655_0010219.jpg',
-    'I1NLM680_0010033.jpg',
-    'I1NLM680_0010035.jpg',
-    'I1NLM746_0010079.jpg',
-    'I1NLM783_0010005.jpg',
-    'I1NLM783_0010101.jpg',
-    'I1NLM819_0010022.jpg',
-    'I1NLM884_0010022.jpg',
-    'I1NLM884_0010058.jpg',
-    'I1NLM884_0010078.jpg',
-    'I1NLM1065_0010023.jpg',
-    'I1NLM1114_0010312.jpg',
-    'I1NLM1227_0010319.jpg',
-    'I1NLM1296_0010429.jpg',
-    'I1NLM1296_0010443.jpg',
-    'I1NLM1296_0010577.jpg',
-    'I1NLM1316_0010196.jpg',
-    'I1NLM1342_0010157.jpg',
-    'I1NLM1344_0010341.jpg',
-    'I1NLM1349_0010126.jpg',
-    'I1NLM1349_0010136.jpg',
-    'I1NLM1349_0010144.jpg',
-    'I1NLM1352_0010100.jpg',
-    'I1NLM1380_0010219.jpg',
-    'I1NLM1479_0010397.jpg',
-    'I1NLM1491_0010173.jpg',
-    'I1NLM1722_0010226.jpg',
-    'I1NLM1804_0010090.jpg',
-    'I1NLM1816_0010301.jpg',
-    'I1NLM1975_0010082.jpg',
-    'I1NLM1975_0010084.jpg',
-    'I1NLM2039_0010133.jpg',
-    'I1NLM2043_0010120.jpg',
-    'I1NLM2124_0010174.jpg',
-    'I1NLM2135_0010116.jpg',
-    'I1NLM2160_0010053.jpg',
-    'I1NLM2160_0010064.jpg',
-    'I1NLM2175_0010186.jpg',
-    'I1NLM2203_0010141.jpg',
-    'I1NLM2212_0010082.jpg',
-    'I1NLM2220_0010135.jpg',
-    'I1NLM2224_0010195.jpg',
-    'I1NLM2244_0010171.jpg',
-    'I1NLM2302_0010105.jpg',
-    'I1NLM2618_0010010.jpg',
-    'I1NLM2618_0010021.jpg',
-    'I1NLM2802_0010211.jpg',
-    'I1NLM2805_0010186.jpg',
-    'I1NLM2807_0010089.jpg',
-    'I1NLM2941_0010180.jpg',
-    'I1NLM2941_0010276.jpg',
-    'I1NLM3041_0010193.jpg',
-    'I1NLM3073_0010110.jpg',
-    'I1NLM3078_0010140.jpg',
-    'I1NLM3100_0010110.jpg',
-    'I1NLM3139_0010133.jpg',
-    'I1NLM3242_0010159.jpg',
-    'I1NLM3286_0010156.jpg',
-    'I1NLM3286_0010157.jpg',
-    'I1NLM3297_0010422.jpg',
-    'I1NLM3507_0010081.jpg',
-    'I1NLM3511_0010112.jpg',
-    'I1NLM3696_0010079.jpg',
-    'I1NLM3696_0010135.jpg',
-    'I1NLM3696_0010176.jpg',
-    'I1NLM3842_0010219.jpg',
-    'I1NLM3856_0010167.jpg',
-    'I1NLM3990_0010102.jpg',
-    'I1NLM3990_0010105.jpg',
-    'I1NLM3990_0010124.jpg',
-    'I1NLM3990_0010133.jpg',
-    'I1NLM4011_0010161.jpg',
-    'I1NLM4193_0010291.jpg',
-    'I1NLM4194_0010267.jpg',
-    'I1NLM4266_0010083.jpg',
-    'I1NLM4288_0010169.jpg',
-    'I1NLM4381_0010206.jpg',
-    'I1NLM4414_0010460.jpg',
-    'I1NLM4446_0010234.jpg',
-    'I1NLM4446_0010254.jpg',
-    'I1NLM4523_0010067.jpg',
-    'I1NLM4624_0010201.jpg',
-    'I1NLM4624_0010202.jpg',
-    'I1NLM4624_0010204.jpg',
-    'I1NLM4649_0010094.jpg',
-    'I1NLM4654_0010240.jpg',
-    'I1NLM4667_0010162.jpg',
-    'I1NLM5028_0010050.jpg',
-    'I1NLM5103_0010290.jpg',
-    'I1NLM5190_0010083.jpg',
-    'I1NLM5190_0010111.jpg',
-    'I1NLM5190_0010171.jpg',
-    'I1NLM5190_0010172.jpg',
-    'I1NLM5190_0010174.jpg',
-    'I1NLM5190_0010376.jpg',
-    'I1NLM5190_0010378.jpg',
-    'I1NLM5190_0010381.jpg',
-    'I1NLM5190_0010392.jpg',
-    'I1NLM5190_0010398.jpg',
-    'I1NLM5190_0010401.jpg',
-    'I1NLM5431_0010234.jpg',
-    'I1NLM5512_0010024.jpg',
-    'I1NLM5512_0010026.jpg',
-    'I1NLM5512_0010031.jpg',
-    'I1NLM5523_0010070.jpg',
-    'I1NLM5611_0010189.jpg',
-    'I1NLM2513_0010225.jpg',
-    'I1NLM2563_0010218.jpg',
+    "I1NLM6915_0010164.jpg",
+    "I1NLM7541_0010194.jpg",
+    "I1NLM7541_0010197.jpg",
+    "I1NLM7541_0010208.jpg",
+    "I1NLM7541_0010340.jpg",
+    "I1NLM7545_0010005.jpg",
+    "I1NLM7545_0010009.jpg",
+    "I1NLM7545_0010016.jpg",
+    "I1NLM7545_0010018.jpg",
+    "I1NLM7545_0010023.jpg",
+    "I1NLM7545_0010030.jpg",
+    "I1NLM7545_0010094.jpg",
+    "I1NLM7545_0010202.jpg",
+    "I1NLM7592_0010292.jpg",
+    "I1NLM7592_0010293.jpg",
+    "I1NLM7621_0010272.jpg",
+    "I1NLM6915_0010177.jpg",
+    "I1NLM6915_0010185.jpg",
+    "I1NLM7011_0010180.jpg",
+    "I1NLM7011_0010181.jpg",
+    "I1NLM7035_0010083.jpg",
+    "I1NLM7041_0010141.jpg",
+    "I1NLM7087_0010137.jpg",
+    "I1NLM7087_0010143.jpg",
+    "I1NLM7094_0010192.jpg",
+    "I1NLM7124_0010203.jpg",
+    "I1NLM7139_0010077.jpg",
+    "I1NLM7182_0010012.jpg",
+    "I1NLM7182_0010024.jpg",
+    "I1NLM7182_0010026.jpg",
+    "I1NLM7182_0010032.jpg",
+    "I1NLM7295_0010087.jpg",
+    "I1NLM7295_0010195.jpg",
+    "I1NLM7422_0010276.jpg",
+    "I1NLM7087_0010144.jpg",
+    "I1NLM6158_0010074.jpg",
+    "I1NLM6159_0010017.jpg",
+    "I1NLM6159_0010108.jpg",
+    "I1NLM6160_0010185.jpg",
+    "I1NLM6160_0010208.jpg",
+    "I1NLM6160_0010279.jpg",
+    "I1NLM6160_0010282.jpg",
+    "I1NLM7087_0010137.jpg",
+    "I1NLM6579_0010342.jpg",
+    "I1NLM6580_0010143.jpg",
+    "I1NLM6630_0010275.jpg",
+    "I1NLM7087_0010144.jpg",
+    "I1NLM5878_0010136.jpg",
+    "I1NLM5879_0010096.jpg",
+    "I1NLM5879_0010135.jpg",
+    "I1NLM5881_0010082.jpg",
+    "I1NLM5901_0010256.jpg",
+    "I1NLM5943_0010125.jpg",
+    "I1NLM6080_0010209.jpg",
+    "I1NLM6404_0010146.jpg",
+    "I1NLM6409_0010205.jpg",
+    "I1NLM6459_0010064.jpg",
+    "I1NLM6156_0010078.jpg",
+    "I1NLM6156_0010162.jpg",
+    "I1NLM6304_0010097.jpg",
+    "I1NLM6304_0010099.jpg",
+    "I1NLM6337_0010041.jpg",
+    "I1NLM6031_0010143.jpg",
+    "I1NLM6317_0010401.jpg",
+    "I1NLM6317_0010404.jpg",
+    "I1NLM6337_0010041.jpg",
+    "I1NLM3870_0010041.jpg",
+    "I1NLM2350_0010077.jpg",
+    "I1NLM2801_0010239.jpg",
+    "I1NLM2801_0010330.jpg",
+    "I1NLM3990_0010124.jpg",
+    "I1NLM4033_0010278.jpg",
+    "I1NLM4033_0010293.jpg",
+    "I1NLM4033_0010294.jpg",
+    "I1NLM5512_0010024.jpg",
+    "I1NLM4033_0010295.jpg",
+    "I1NLM4033_0010296.jpg",
+    "I1NLM137_0010112.jpg",
+    "I1NLM150_0010192.jpg",
+    "I1NLM150_0010193.jpg" "I1NLM236_0010112.jpg",
+    "I1NLM252_0010024.jpg",
+    "I1NLM257_0010030.jpg",
+    "I1NLM259_0010012.jpg",
+    "I1NLM259_0010045.jpg",
+    "I1NLM260_0010013.jpg",
+    "I1NLM260_0010047.jpg",
+    "I1NLM280_0010077.jpg",
+    "I1NLM365_0010326.jpg",
+    "I1NLM418_0010064.jpg",
+    "I1NLM418_0010187.jpg",
+    "I1NLM446_0010147.jpg",
+    "I1NLM446_0010159.jpg",
+    "I1NLM481_0010058.jpg",
+    "I1NLM481_0010060.jpg",
+    "I1NLM481_0010062.jpg",
+    "I1NLM481_0010065.jpg",
+    "I1NLM481_0010069.jpg",
+    "I1NLM554_0010013.jpg",
+    "I1NLM554_0010067.jpg",
+    "I1NLM572_0010019.jpg",
+    "I1NLM572_0010044.jpg",
+    "I1NLM592_0010144.jpg",
+    "I1NLM602_0010203.jpg",
+    "I1NLM616_0010049.jpg",
+    "I1NLM638_0010184.jpg",
+    "I1NLM653_0010094.jpg",
+    "I1NLM655_0010204.jpg",
+    "I1NLM655_0010209.jpg",
+    "I1NLM655_0010219.jpg",
+    "I1NLM680_0010033.jpg",
+    "I1NLM680_0010035.jpg",
+    "I1NLM746_0010079.jpg",
+    "I1NLM783_0010005.jpg",
+    "I1NLM783_0010101.jpg",
+    "I1NLM819_0010022.jpg",
+    "I1NLM884_0010022.jpg",
+    "I1NLM884_0010058.jpg",
+    "I1NLM884_0010078.jpg",
+    "I1NLM1065_0010023.jpg",
+    "I1NLM1114_0010312.jpg",
+    "I1NLM1227_0010319.jpg",
+    "I1NLM1296_0010429.jpg",
+    "I1NLM1296_0010443.jpg",
+    "I1NLM1296_0010577.jpg",
+    "I1NLM1316_0010196.jpg",
+    "I1NLM1342_0010157.jpg",
+    "I1NLM1344_0010341.jpg",
+    "I1NLM1349_0010126.jpg",
+    "I1NLM1349_0010136.jpg",
+    "I1NLM1349_0010144.jpg",
+    "I1NLM1352_0010100.jpg",
+    "I1NLM1380_0010219.jpg",
+    "I1NLM1479_0010397.jpg",
+    "I1NLM1491_0010173.jpg",
+    "I1NLM1722_0010226.jpg",
+    "I1NLM1804_0010090.jpg",
+    "I1NLM1816_0010301.jpg",
+    "I1NLM1975_0010082.jpg",
+    "I1NLM1975_0010084.jpg",
+    "I1NLM2039_0010133.jpg",
+    "I1NLM2043_0010120.jpg",
+    "I1NLM2124_0010174.jpg",
+    "I1NLM2135_0010116.jpg",
+    "I1NLM2160_0010053.jpg",
+    "I1NLM2160_0010064.jpg",
+    "I1NLM2175_0010186.jpg",
+    "I1NLM2203_0010141.jpg",
+    "I1NLM2212_0010082.jpg",
+    "I1NLM2220_0010135.jpg",
+    "I1NLM2224_0010195.jpg",
+    "I1NLM2244_0010171.jpg",
+    "I1NLM2302_0010105.jpg",
+    "I1NLM2618_0010010.jpg",
+    "I1NLM2618_0010021.jpg",
+    "I1NLM2802_0010211.jpg",
+    "I1NLM2805_0010186.jpg",
+    "I1NLM2807_0010089.jpg",
+    "I1NLM2941_0010180.jpg",
+    "I1NLM2941_0010276.jpg",
+    "I1NLM3041_0010193.jpg",
+    "I1NLM3073_0010110.jpg",
+    "I1NLM3078_0010140.jpg",
+    "I1NLM3100_0010110.jpg",
+    "I1NLM3139_0010133.jpg",
+    "I1NLM3242_0010159.jpg",
+    "I1NLM3286_0010156.jpg",
+    "I1NLM3286_0010157.jpg",
+    "I1NLM3297_0010422.jpg",
+    "I1NLM3507_0010081.jpg",
+    "I1NLM3511_0010112.jpg",
+    "I1NLM3696_0010079.jpg",
+    "I1NLM3696_0010135.jpg",
+    "I1NLM3696_0010176.jpg",
+    "I1NLM3842_0010219.jpg",
+    "I1NLM3856_0010167.jpg",
+    "I1NLM3990_0010102.jpg",
+    "I1NLM3990_0010105.jpg",
+    "I1NLM3990_0010124.jpg",
+    "I1NLM3990_0010133.jpg",
+    "I1NLM4011_0010161.jpg",
+    "I1NLM4193_0010291.jpg",
+    "I1NLM4194_0010267.jpg",
+    "I1NLM4266_0010083.jpg",
+    "I1NLM4288_0010169.jpg",
+    "I1NLM4381_0010206.jpg",
+    "I1NLM4414_0010460.jpg",
+    "I1NLM4446_0010234.jpg",
+    "I1NLM4446_0010254.jpg",
+    "I1NLM4523_0010067.jpg",
+    "I1NLM4624_0010201.jpg",
+    "I1NLM4624_0010202.jpg",
+    "I1NLM4624_0010204.jpg",
+    "I1NLM4649_0010094.jpg",
+    "I1NLM4654_0010240.jpg",
+    "I1NLM4667_0010162.jpg",
+    "I1NLM5028_0010050.jpg",
+    "I1NLM5103_0010290.jpg",
+    "I1NLM5190_0010083.jpg",
+    "I1NLM5190_0010111.jpg",
+    "I1NLM5190_0010171.jpg",
+    "I1NLM5190_0010172.jpg",
+    "I1NLM5190_0010174.jpg",
+    "I1NLM5190_0010376.jpg",
+    "I1NLM5190_0010378.jpg",
+    "I1NLM5190_0010381.jpg",
+    "I1NLM5190_0010392.jpg",
+    "I1NLM5190_0010398.jpg",
+    "I1NLM5190_0010401.jpg",
+    "I1NLM5431_0010234.jpg",
+    "I1NLM5512_0010024.jpg",
+    "I1NLM5512_0010026.jpg",
+    "I1NLM5512_0010031.jpg",
+    "I1NLM5523_0010070.jpg",
+    "I1NLM5611_0010189.jpg",
+    "I1NLM2513_0010225.jpg",
+    "I1NLM2563_0010218.jpg",
     "I1NLM2757_0010164.jpg",
-    'I1NLM2768_0010337.jpg',
-    'I1NLM2770_0010087.jpg',
-    'I1NLM2770_0010140.jpg',
-    'I1NLM2770_0010290.jpg',
-    'I1NLM3038_0010070.jpg',
-    'I1NLM3308_0010034.jpg',
-    'I1NLM3404_0010094.jpg',
-    'I1NLM3408_0010126.jpg',
-    'I1NLM3561_0010165.jpg',
-    'I1NLM3618_0010064.jpg',
-    'I1NLM3618_0010078.jpg',
-    'I1NLM3720_0010116.jpg',
-    'I1NLM3720_0010146.jpg',
-    'I1NLM3720_0010147.jpg',
-    'I1NLM3720_0010148.jpg',
-    'I1NLM3724_0010230.jpg',
-    'I1NLM3738_0010135.jpg',
-    'I1NLM3738_0010163.jpg',
-    'I1NLM3738_0010196.jpg',
-    'I1NLM3738_0010198.jpg',
-    'I1NLM3738_0010209.jpg',
-    'I1NLM3738_0010211.jpg',
-    'I1NLM3738_0010213.jpg',
-    'I1NLM3738_0010214.jpg',
-    'I1NLM3738_0010216.jpg',
-    'I1NLM3738_0010218.jpg',
-    'I1NLM3738_0010219.jpg',
-    'I1NLM3738_0010233.jpg',
-    'I1NLM3738_0010238.jpg',
-    'I1NLM3778_0010177.jpg',
-    'I1NLM3783_0010285.jpg',
-    'I1NLM3834_0010123.jpg',
-    'I1NLM3911_0010259.jpg',
-    'I1NLM3915_0010276.jpg',
-    'I1NLM3917_0010202.jpg',
-    'I1NLM3937_0010006.jpg',
-    'I1NLM3937_0010013.jpg',
-    'I1NLM4551_0010030.jpg',
-    'I1NLM4830_0010098.jpg',
-    'I1NLM4929_0010033.jpg',
-    'I1NLM5163_0010241.jpg',
-    'I1NLM5166_0010225.jpg',
-    'I1NLM5206_0010316.jpg',
-    'I1NLM5208_0010452.jpg',
-    'I1NLM5229_0010190.jpg',
-    'I1NLM5234_0010351.jpg',
-    'I1NLM5238_0010324.jpg',
-    'I1NLM5239_0010013.jpg',
-    'I1NLM5239_0010024.jpg',
-    'I1NLM5239_0010028.jpg',
-    'I1NLM5239_0010044.jpg',
-    'I1NLM5239_0010127.jpg',
-    'I1NLM5239_0010290.jpg',
-    'I1NLM5239_0010347.jpg',
-    'I1NLM5352_0010237.jpg',
-    'I1NLM5370_0010191.jpg',
-    'I1NLM5377_0010161.jpg',
-    'I1NLM5465_0010104.jpg',
-    'I1NLM5239_0010405.jpg',
-    'I1NLM5239_0010407.jpg',
-    'I1NLM5239_0010444.jpg',
-    'I1NLM2765_0010386.jpg',
-    'I1NLM2769_0010131.jpg',
-    'I1NLM2769_0010308.jpg',
-    'I1NLM2769_0010311.jpg',
-    'I1NLM2769_0010391.jpg',
-    'I1NLM3708_0010067.jpg',
-    'I1NLM5208_0010451.jpg',
-    'I1NLM7120_0010257.jpg'
+    "I1NLM2768_0010337.jpg",
+    "I1NLM2770_0010087.jpg",
+    "I1NLM2770_0010140.jpg",
+    "I1NLM2770_0010290.jpg",
+    "I1NLM3038_0010070.jpg",
+    "I1NLM3308_0010034.jpg",
+    "I1NLM3404_0010094.jpg",
+    "I1NLM3408_0010126.jpg",
+    "I1NLM3561_0010165.jpg",
+    "I1NLM3618_0010064.jpg",
+    "I1NLM3618_0010078.jpg",
+    "I1NLM3720_0010116.jpg",
+    "I1NLM3720_0010146.jpg",
+    "I1NLM3720_0010147.jpg",
+    "I1NLM3720_0010148.jpg",
+    "I1NLM3724_0010230.jpg",
+    "I1NLM3738_0010135.jpg",
+    "I1NLM3738_0010163.jpg",
+    "I1NLM3738_0010196.jpg",
+    "I1NLM3738_0010198.jpg",
+    "I1NLM3738_0010209.jpg",
+    "I1NLM3738_0010211.jpg",
+    "I1NLM3738_0010213.jpg",
+    "I1NLM3738_0010214.jpg",
+    "I1NLM3738_0010216.jpg",
+    "I1NLM3738_0010218.jpg",
+    "I1NLM3738_0010219.jpg",
+    "I1NLM3738_0010233.jpg",
+    "I1NLM3738_0010238.jpg",
+    "I1NLM3778_0010177.jpg",
+    "I1NLM3783_0010285.jpg",
+    "I1NLM3834_0010123.jpg",
+    "I1NLM3911_0010259.jpg",
+    "I1NLM3915_0010276.jpg",
+    "I1NLM3917_0010202.jpg",
+    "I1NLM3937_0010006.jpg",
+    "I1NLM3937_0010013.jpg",
+    "I1NLM4551_0010030.jpg",
+    "I1NLM4830_0010098.jpg",
+    "I1NLM4929_0010033.jpg",
+    "I1NLM5163_0010241.jpg",
+    "I1NLM5166_0010225.jpg",
+    "I1NLM5206_0010316.jpg",
+    "I1NLM5208_0010452.jpg",
+    "I1NLM5229_0010190.jpg",
+    "I1NLM5234_0010351.jpg",
+    "I1NLM5238_0010324.jpg",
+    "I1NLM5239_0010013.jpg",
+    "I1NLM5239_0010024.jpg",
+    "I1NLM5239_0010028.jpg",
+    "I1NLM5239_0010044.jpg",
+    "I1NLM5239_0010127.jpg",
+    "I1NLM5239_0010290.jpg",
+    "I1NLM5239_0010347.jpg",
+    "I1NLM5352_0010237.jpg",
+    "I1NLM5370_0010191.jpg",
+    "I1NLM5377_0010161.jpg",
+    "I1NLM5465_0010104.jpg",
+    "I1NLM5239_0010405.jpg",
+    "I1NLM5239_0010407.jpg",
+    "I1NLM5239_0010444.jpg",
+    "I1NLM2765_0010386.jpg",
+    "I1NLM2769_0010131.jpg",
+    "I1NLM2769_0010308.jpg",
+    "I1NLM2769_0010311.jpg",
+    "I1NLM2769_0010391.jpg",
+    "I1NLM3708_0010067.jpg",
+    "I1NLM5208_0010451.jpg",
+    "I1NLM7120_0010257.jpg",
+    "I1NLM7630_0010213.jpg",
+    "I1NLM7630_0010215.jpg",
+    "I1NLM7674_0010120.jpg",
 ]
 
 NO_STAMP_TEXT_BREAK = [
-    'I1NLM5561_0010135.jpg',
-    'I1NLM1581_0010230.jpg',
-    'I1NLM5009_0010029.jpg',
-    'I1NLM4077_0010239.jpg',
-    'I1NLM259_0010060.jpg',
-    'I1NLM5484_0010267.jpg',
-    'I1NLM5484_0010267.jpg'
+    "I1NLM5561_0010135.jpg",
+    "I1NLM1581_0010230.jpg",
+    "I1NLM5009_0010029.jpg",
+    "I1NLM4077_0010239.jpg",
+    "I1NLM259_0010060.jpg",
+    "I1NLM5484_0010267.jpg",
+    "I1NLM5484_0010267.jpg",
 ]
 
 TRIPLE = [
-    'I1NLM4033_0010297.jpg',
-    'I1NLM7545_0010012.jpg',
-    'I1NLM3990_0010126.jpg',
+    "I1NLM4033_0010297.jpg",
+    "I1NLM7545_0010012.jpg",
+    "I1NLM3990_0010126.jpg",
     "I1NLM446_0010147.jpg",
     "I1NLM481_0010061.jpg",
     "I1NLM481_0010064.jpg",
     "I1NLM481_0010066.jpg",
     "I1NLM481_0010067.jpg",
-    'I1NLM481_0010068.jpg',
+    "I1NLM481_0010068.jpg",
     "I1NLM1479_0010395.jpg",
-    'I1NLM3990_0010126.jpg',
-    'I1NLM3990_0010137.jpg',
-    'I1NLM4004_0010215.jpg',
-    'I1NLM5190_0010379.jpg',
-    'I1NLM5747_0010232.jpg',
-    'I1NLM3738_0010201.jpg',
-    'I1NLM3738_0010212.jpg',
-    'I1NLM5239_0010348.jpg',
-    'I1NLM5722_0010271.jpg',
-    'I1NLM5747_0010226.jpg',
-    'I1NLM5747_0010230.jpg',
-    'I1NLM6352_0010223.jpg',
-    'I1NLM6359_0010033.jpg'
+    "I1NLM3990_0010126.jpg",
+    "I1NLM3990_0010137.jpg",
+    "I1NLM4004_0010215.jpg",
+    "I1NLM5190_0010379.jpg",
+    "I1NLM5747_0010232.jpg",
+    "I1NLM3738_0010201.jpg",
+    "I1NLM3738_0010212.jpg",
+    "I1NLM5239_0010348.jpg",
+    "I1NLM5722_0010271.jpg",
+    "I1NLM5747_0010226.jpg",
+    "I1NLM5747_0010230.jpg",
+    "I1NLM6352_0010223.jpg",
+    "I1NLM6359_0010033.jpg",
+    "I1NLM7630_0010214.jpg",
 ]
 
-QUAD = [
-    'I1NLM5190_0010400.jpg',
-    'I1NLM5747_0010229.jpg'
-]
+QUAD = ["I1NLM5190_0010400.jpg", "I1NLM5747_0010229.jpg"]
 
 TRAINING_DATA = {}
+
+
 def get_training_data(name, category):
     global TRAINING_DATA
     if category not in TRAINING_DATA:
         TRAINING_DATA[category] = {}
-    csv_fname = "groundtruth/"+name+".csv"
-    with open(csv_fname, newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+    csv_fname = "groundtruth/" + name + ".csv"
+    with open(csv_fname, newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             imgfname = row[0]
-            basename = imgfname[1:imgfname.find("_")]
-            wlname = "W"+basename
-            ilname = "I"+basename+"_001"
-            if wlname+"-"+ilname not in TRAINING_DATA[category]:
-                TRAINING_DATA[category][wlname+"-"+ilname] = []
-            TRAINING_DATA[category][wlname+"-"+ilname].append(imgfname)
+            basename = imgfname[1 : imgfname.find("_")]
+            wlname = "W" + basename
+            ilname = "I" + basename + "_001"
+            if wlname + "-" + ilname not in TRAINING_DATA[category]:
+                TRAINING_DATA[category][wlname + "-" + ilname] = []
+            TRAINING_DATA[category][wlname + "-" + ilname].append(imgfname)
+
 
 get_training_data("difficult", "with")
 get_training_data("stamp_number", "with")
 get_training_data("stamp_number_rkts", "with")
 get_training_data("no_stamp", "without")
 
-#print(TRAINING_DATA)
+# print(TRAINING_DATA)
 
 P_LIMIT = 0.5
 P_LIMIT_SECOND = 0.01
 
+
 def get_images(jsonlfn):
     res = []
-    with open(jsonlfn, 'r') as json_file:
+    with open(jsonlfn, "r") as json_file:
         for l in json_file:
             res.append(json.loads(l))
     return res
 
-def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline, positives_threshold=0.9, negatives_threshold=0.0):
-    basefn = jsonlfn[len(batchdir):-6]
+
+def analyze_volume(
+    batchdir,
+    jsonlfn,
+    stats,
+    sort_for_false_positives,
+    sort_for_false_negatives,
+    sort_for_false_negatives_pos,
+    not_very_high,
+    grand_outline,
+    positives_threshold=0.9,
+    negatives_threshold=0.0,
+):
+    basefn = jsonlfn[len(batchdir) : -6]
     [wlname, ilname] = basefn.split("-")
-    #if wlname != "W1NLM2371":
+    # if wlname != "W1NLM2371":
     #    return
     if ilname not in VINFO:
-        #print(ilname)
+        # print(ilname)
         return
     vinfo = VINFO[ilname]
     nb_numbers_expected = vinfo["nb_texts"]
     images = get_images(jsonlfn)
     nb_detected = 0
     # sort from higher to lower
-    #images = sorted(images, key=lambda x: x[1])
+    # images = sorted(images, key=lambda x: x[1])
     positives = set()
     less_positives = set()
     nvh = set()
@@ -538,14 +558,18 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
             less_positives.add(image[0])
     from_training = []
     needsfirst = False
-    if wlname+"-"+ilname in TRAINING_DATA["with"]:
-        from_training = TRAINING_DATA["with"][wlname+"-"+ilname]
+    if wlname + "-" + ilname in TRAINING_DATA["with"]:
+        from_training = TRAINING_DATA["with"][wlname + "-" + ilname]
         positives.update(from_training)
         less_positives.difference_update(from_training)
         nvh.difference_update(from_training)
         needsfirst = True
         for img in from_training:
-            if img.endswith("0001.jpg") or img.endswith("0002.jpg") or img.endswith("0003.jpg"):
+            if (
+                img.endswith("0001.jpg")
+                or img.endswith("0002.jpg")
+                or img.endswith("0003.jpg")
+            ):
                 needsfirst = False
                 break
     else:
@@ -559,21 +583,23 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
             nb_triple += 1
         if img in QUAD:
             nb_quad += 1
-    #print(sorted(list(positives)))
-    if wlname+"-"+ilname in TRAINING_DATA["without"]:
-        from_training = TRAINING_DATA["without"][wlname+"-"+ilname]
-        #print("discard "+str(len(from_training)))
+    # print(sorted(list(positives)))
+    if wlname + "-" + ilname in TRAINING_DATA["without"]:
+        from_training = TRAINING_DATA["without"][wlname + "-" + ilname]
+        # print("discard "+str(len(from_training)))
         for img in from_training:
             positives.discard(img)
             less_positives.discard(img)
             nvh.discard(img)
     if needsfirst:
-        positives.add(ilname+"0001.jpg")
-    not_very_high+=list(nvh)
+        positives.add(ilname + "0001.jpg")
+    not_very_high += list(nvh)
     positives = sorted(list(positives))
-    nb_detected = len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
+    nb_detected = (
+        len(positives) - nb_strikedthrough + nb_double + 2 * nb_triple + 3 * nb_quad
+    )
     # this condition produces the outline for review only
-    #if nb_detected != nb_numbers_expected:
+    # if nb_detected != nb_numbers_expected:
     #    add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     add_to_grand_outline(grand_outline, wlname, ilname, positives, len(images))
     if nb_detected > nb_numbers_expected:
@@ -583,16 +609,16 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         sort_for_false_positives += list(positives)
         # if we detected N too many numbers, we look at the N detected with
         # the lowest probability
-        #for i in range(nb_numbers_expected, nb_detected):
+        # for i in range(nb_numbers_expected, nb_detected):
         #    sort_for_false_positives + list(positives)
     elif nb_detected < nb_numbers_expected:
-        #print("tototototo")
+        # print("tototototo")
         stats["missing_numbers"] += nb_numbers_expected - nb_detected
         stats["missing_numbers_vol"] += 1
         stats["correct_numbers"] += nb_detected
         sort_for_false_negatives_pos += list(positives)[1:]
-        #create_outline(wlname, ilname, positives)
-        #for i in range(nb_detected, nb_numbers_expected):
+        # create_outline(wlname, ilname, positives)
+        # for i in range(nb_detected, nb_numbers_expected):
         #    sort_for_false_negatives.append(images[i][0])
         # different aproach: we take everything between 0.2 and 0.5
         sort_for_false_negatives += list(less_positives)
@@ -600,21 +626,23 @@ def analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_
         stats["correct_numbers"] += nb_detected
         stats["correct_numbers_vol"] += 1
 
+
 def download_images(imagelist, folder):
     Path(folder).mkdir(parents=True, exist_ok=True)
     for imgfname in tqdm(sorted(imagelist)):
-        if Path(folder+imgfname).is_file():
+        if Path(folder + imgfname).is_file():
             continue
-        wlname = "W"+imgfname[1:imgfname.find("_")]
-        ilname = imgfname[:imgfname.find("_")+4]
+        wlname = "W" + imgfname[1 : imgfname.find("_")]
+        ilname = imgfname[: imgfname.find("_") + 4]
         try:
             img = get_processed_image(wlname, ilname, imgfname)
-            img.save(folder+imgfname, "JPEG", progressive=True, optimize=True)
+            img.save(folder + imgfname, "JPEG", progressive=True, optimize=True)
         except Exception as e:
-            print("couldn't download "+imgfname)
+            print("couldn't download " + imgfname)
             print(e)
 
-def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
+
+def add_to_grand_outline(grand_outline, wlname, ilname, positives, nb_images):
     numbers = VINFO[ilname]["numbers"]
     spos = sorted(list(positives))
     img_i = 0
@@ -646,7 +674,11 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
             img = img_orig[-8:-4].lstrip("0")
             if adjustment_lost:
                 img += "?"
-            if img_orig in STRIKEDTHROUGH or img_orig in DUPLICATES or img_orig in IGNORE:
+            if (
+                img_orig in STRIKEDTHROUGH
+                or img_orig in DUPLICATES
+                or img_orig in IGNORE
+            ):
                 img_i += 1
                 continue
             if img_i > 0 and img_orig not in IRREGULARITY_BEFORE:
@@ -659,7 +691,7 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
                 nb_numbers = 4
             if img_orig in IRREGULARITY_BEFORE and not ignore_irregs:
                 if number_i < len(numbers):
-                    grand_outline.append([wlname,numbers[number_i], "?",img])
+                    grand_outline.append([wlname, numbers[number_i], "?", img])
                 number_i += 1
                 if not adjusted:
                     adjustment_lost = True
@@ -667,14 +699,24 @@ def add_to_grand_outline(grand_outline, wlname,ilname,positives,nb_images):
             grand_outline[-1][3] = "?"
         for j in range(nb_numbers):
             if number_i + j < len(numbers):
-                grand_outline.append([wlname,numbers[number_i+j], img,img if j < nb_numbers -1 else "?"])
+                grand_outline.append(
+                    [
+                        wlname,
+                        numbers[number_i + j],
+                        img,
+                        img if j < nb_numbers - 1 else "?",
+                    ]
+                )
             else:
-                grand_outline.append([wlname,"?", img,img if j < nb_numbers -1 else "?"])
+                grand_outline.append(
+                    [wlname, "?", img, img if j < nb_numbers - 1 else "?"]
+                )
         img_i += 1
         number_i += nb_numbers
-        #grand_outline.append([])
+        # grand_outline.append([])
 
-def create_outline(wlname,ilname,positives):
+
+def create_outline(wlname, ilname, positives):
     rows = []
     numbers = VINFO[ilname]["numbers"]
     spos = sorted(list(positives))
@@ -682,45 +724,128 @@ def create_outline(wlname,ilname,positives):
     for i in range(nbrows):
         num = numbers[i] if i < len(numbers) else ""
         img_cell = ""
-        img="?"
-        full_link=""
+        img = "?"
+        full_link = ""
         if i < len(spos):
             img = spos[i]
-            img_cell = '=IMAGE("https://iiif.bdrc.io/bdr:'+ilname+'::'+img+'/0,0,500,1000/pct:50/270/default.jpg")'
-            full_link = "https://iiif.bdrc.io/bdr:"+ilname+"::"+img+"/full/max/0/default.jpg"
-        rows.append([full_link,img,num])
-    csvfname = "analyses/batch2/outlines/"+wlname+".csv"
-    with open(csvfname, 'w', newline='') as csvfile:
+            img_cell = (
+                '=IMAGE("https://iiif.bdrc.io/bdr:'
+                + ilname
+                + "::"
+                + img
+                + '/0,0,500,1000/pct:50/270/default.jpg")'
+            )
+            full_link = (
+                "https://iiif.bdrc.io/bdr:"
+                + ilname
+                + "::"
+                + img
+                + "/full/max/0/default.jpg"
+            )
+        rows.append([full_link, img, num])
+    csvfname = "analyses/batch2/outlines/" + wlname + ".csv"
+    with open(csvfname, "w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in rows:
             writer.writerow(r)
 
 
+# def main(batchdir, analysisdir):
+#     print(f"RUNNING MAIN with analysis dir: {analysisdir}")
+#     jsonlfns = sorted(glob(batchdir + "*.jsonl"))[1000:1060]
+#     sort_for_false_negatives = []
+#     sort_for_false_positives = []
+#     sort_for_false_negatives_pos = []
+#     not_very_high = []
+#     grand_outline = []
+#     stats = {
+#         "missing_numbers": 0,
+#         "missing_numbers_vol": 0,
+#         "additional_numbers": 0,
+#         "additional_numbers_vol": 0,
+#         "correct_numbers": 0,
+#         "correct_numbers_vol": 0,
+#     }
+#     for jsonlfn in jsonlfns:
+#         analyze_volume(
+#             batchdir,
+#             jsonlfn,
+#             stats,
+#             sort_for_false_positives,
+#             sort_for_false_negatives,
+#             sort_for_false_negatives_pos,
+#             not_very_high,
+#             grand_outline,
+#         )
+#     print(stats)
+#     # STEP 1, false positives
+#     # download_images(sort_for_false_positives, analysisdir+"positives/")
+#     # STEP 2, false negatives
+#     # download_images(sort_for_false_negatives, analysisdir + "negatives/")
+#     # STEP 3, false negatives but different threshold?
+#     # download_images(not_very_high, analysisdir + "nvh/")
+#     # STEP 4, false negatives...?
+#     # download_images(sort_for_false_negatives_pos, analysisdir + "negative-pos/")
+#     with open("grand_outline.csv", "w", newline="") as csvfile:
+#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+#         for r in grand_outline:
+#             writer.writerow(r)
+
+#     with open("outline.csv", 'w', newline='') as csvfile:
+#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+#         for r in grand_outline:
+#             writer.writerow(r)
+#     print("outline with all numbers ok written on outline.csv")
+#     with open("outline_needs_review.csv", 'w', newline='') as csvfile:
+#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+#         for r in grand_outline_needs_review:
+#             writer.writerow(r)
+#     print("outline for review written on outline_needs_review.csv")
+
+
 def main(batchdir, analysisdir):
-    jsonlfns = sorted(glob(batchdir+"*.jsonl"))[:1000]
+    jsonlfns = sorted(glob(batchdir + "*.jsonl"))[1000:]
     sort_for_false_negatives = []
     sort_for_false_positives = []
     sort_for_false_negatives_pos = []
     not_very_high = []
     grand_outline = []
+    grand_outline_needs_review = []
     stats = {
         "missing_numbers": 0,
         "missing_numbers_vol": 0,
         "additional_numbers": 0,
         "additional_numbers_vol": 0,
         "correct_numbers": 0,
-        "correct_numbers_vol": 0
+        "correct_numbers_vol": 0,
     }
     for jsonlfn in jsonlfns:
-        analyze_volume(batchdir, jsonlfn, stats, sort_for_false_positives, sort_for_false_negatives, sort_for_false_negatives_pos, not_very_high, grand_outline)
+        analyze_volume(
+            batchdir,
+            jsonlfn,
+            stats,
+            sort_for_false_positives,
+            sort_for_false_negatives,
+            sort_for_false_negatives_pos,
+            not_very_high,
+            grand_outline,
+            grand_outline_needs_review,
+        )
     print(stats)
-    #download_images(sort_for_false_positives, analysisdir+"positives/")
-    #download_images(sort_for_false_negatives, analysisdir+"negatives/")
-    #download_images(not_very_high, analysisdir+"nvh/")
-    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
-    with open("grand_outline.csv", 'w', newline='') as csvfile:
+    # download_images(sort_for_false_positives, analysisdir+"positives/")
+    # download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    # download_images(not_very_high, analysisdir+"nvh/")
+    # download_images(sort_for_false_negatives_pos, analysisdir + "negative-pos/")
+    with open("outline.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
             writer.writerow(r)
+    print("outline with all numbers ok written on outline.csv")
+    with open("outline_needs_review.csv", "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+        for r in grand_outline_needs_review:
+            writer.writerow(r)
+    print("outline for review written on outline_needs_review.csv")
+
 
 main("results/batch4/", "analyses/batch4/")
