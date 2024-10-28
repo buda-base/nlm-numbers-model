@@ -534,6 +534,7 @@ def analyze_volume(
     sort_for_false_negatives_pos,
     not_very_high,
     grand_outline,
+    grand_outline_needs_review,
     positives_threshold=0.9,
     negatives_threshold=0.0,
 ):
@@ -767,60 +768,6 @@ def create_outline(wlname, ilname, positives):
         for r in rows:
             writer.writerow(r)
 
-
-# def main(batchdir, analysisdir):
-#     print(f"RUNNING MAIN with analysis dir: {analysisdir}")
-#     jsonlfns = sorted(glob(batchdir + "*.jsonl"))[1000:1060]
-#     sort_for_false_negatives = []
-#     sort_for_false_positives = []
-#     sort_for_false_negatives_pos = []
-#     not_very_high = []
-#     grand_outline = []
-#     stats = {
-#         "missing_numbers": 0,
-#         "missing_numbers_vol": 0,
-#         "additional_numbers": 0,
-#         "additional_numbers_vol": 0,
-#         "correct_numbers": 0,
-#         "correct_numbers_vol": 0,
-#     }
-#     for jsonlfn in jsonlfns:
-#         analyze_volume(
-#             batchdir,
-#             jsonlfn,
-#             stats,
-#             sort_for_false_positives,
-#             sort_for_false_negatives,
-#             sort_for_false_negatives_pos,
-#             not_very_high,
-#             grand_outline,
-#         )
-#     print(stats)
-#     # STEP 1, false positives
-#     # download_images(sort_for_false_positives, analysisdir+"positives/")
-#     # STEP 2, false negatives
-#     # download_images(sort_for_false_negatives, analysisdir + "negatives/")
-#     # STEP 3, false negatives but different threshold?
-#     # download_images(not_very_high, analysisdir + "nvh/")
-#     # STEP 4, false negatives...?
-#     # download_images(sort_for_false_negatives_pos, analysisdir + "negative-pos/")
-#     with open("grand_outline.csv", "w", newline="") as csvfile:
-#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
-#         for r in grand_outline:
-#             writer.writerow(r)
-
-#     with open("outline.csv", 'w', newline='') as csvfile:
-#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
-#         for r in grand_outline:
-#             writer.writerow(r)
-#     print("outline with all numbers ok written on outline.csv")
-#     with open("outline_needs_review.csv", 'w', newline='') as csvfile:
-#         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
-#         for r in grand_outline_needs_review:
-#             writer.writerow(r)
-#     print("outline for review written on outline_needs_review.csv")
-
-
 def main(batchdir, analysisdir):
     jsonlfns = sorted(glob(batchdir + "*.jsonl"))[1000:]
     sort_for_false_negatives = []
@@ -853,7 +800,7 @@ def main(batchdir, analysisdir):
     #download_images(sort_for_false_positives, analysisdir+"positives/")
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     #download_images(not_very_high, analysisdir+"nvh/")
-    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("outline.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
