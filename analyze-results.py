@@ -117,6 +117,19 @@ STRIKEDTHROUGH = [
     "I1NLM5234_0010170.jpg",
     "I1NLM5234_0010173.jpg",
     "I1NLM5234_0010184.jpg",
+    "I1NLM8324_0010068.jpg",
+    "I1NLM8324_0010077.jpg",
+    "I1NLM8766_0010183.jpg",
+    "I1NLM9276_0010215.jpg",
+    "I1NLM9281_0010007.jpg",
+    "I1NLM9404_0010302.jpg",
+    "I1NLM9415_0010037.jpg",
+    "I1NLM9415_0010056.jpg",
+    "I1NLM9417_0010035.jpg",
+    "I1NLM9778_0010216.jpg",
+    "I1NLM9781_0010149.jpg",
+    "I1NLM9797_0010181.jpg",
+    "I1NLM9937_0010233.jpg",
 ]
 
 DUPLICATES = [
@@ -446,6 +459,7 @@ DOUBLE = [
     "I1NLM7630_0010213.jpg",
     "I1NLM7630_0010215.jpg",
     "I1NLM7674_0010120.jpg",
+    "I1NLM9365_0010274.jpg",
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -769,7 +783,7 @@ def create_outline(wlname, ilname, positives):
             writer.writerow(r)
 
 def main(batchdir, analysisdir):
-    jsonlfns = sorted(glob(batchdir + "*.jsonl"))[1000:]
+    jsonlfns = sorted(glob(batchdir + "*.jsonl"))
     sort_for_false_negatives = []
     sort_for_false_positives = []
     sort_for_false_negatives_pos = []
@@ -797,9 +811,17 @@ def main(batchdir, analysisdir):
             grand_outline_needs_review,
         )
     print(stats)
-    #download_images(sort_for_false_positives, analysisdir+"positives/")
+    Path(analysisdir).mkdir(parents=True, exist_ok=True)
+    with open(analysisdir + "positives.txt", "w") as listfile:
+        for name in sorted(set(sort_for_false_positives)):
+            listfile.write(name + "\n")
+    # step 1: volumes with more detected stamps than catalog texts
+    download_images(sort_for_false_positives, analysisdir+"positives/")
+    # step 2: likely missed stamps (score above 0, below 0.5)
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    # step 3: detected stamps with a score between 0.5 and 0.9
     #download_images(not_very_high, analysisdir+"nvh/")
+    # step 4: other detected stamps in volumes that are still short
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("outline.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -812,4 +834,4 @@ def main(batchdir, analysisdir):
             writer.writerow(r)
     print("outline for review written on outline_needs_review.csv")
 
-main("results/batch4/", "analyses/batch4/")
+main("results/batch5/", "analyses/batch5/")
