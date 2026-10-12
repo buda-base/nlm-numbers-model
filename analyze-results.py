@@ -140,6 +140,7 @@ STRIKEDTHROUGH = [
     "I1NLM9532_0010189.jpg",
     "I1NLM9532_0010260.jpg",
     "I1NLM9550_0010240.jpg",
+    "I1NLM9140_0010078.jpg",
 ]
 
 DUPLICATES = [
@@ -471,6 +472,9 @@ DOUBLE = [
     "I1NLM7674_0010120.jpg",
     "I1NLM9365_0010274.jpg",
     "I1NLM9191_0010007.jpg",
+    "I1NLM9025_0010253.jpg",
+    "I1NLM9065_0010137.jpg",
+    "I1NLM9125_0010201.jpg",
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -823,15 +827,15 @@ def main(batchdir, analysisdir):
         )
     print(stats)
     Path(analysisdir).mkdir(parents=True, exist_ok=True)
-    with open(analysisdir + "negatives.txt", "w") as listfile:
-        for name in sorted(set(sort_for_false_negatives)):
+    with open(analysisdir + "nvh.txt", "w") as listfile:
+        for name in sorted(set(not_very_high)):
             listfile.write(name + "\n")
     # step 1: volumes with more detected stamps than catalog texts
     #download_images(sort_for_false_positives, analysisdir+"positives/")
     # step 2: likely missed stamps (score above 0, below 0.5)
-    download_images(sort_for_false_negatives, analysisdir+"negatives/")
+    #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     # step 3: detected stamps with a score between 0.5 and 0.9
-    #download_images(not_very_high, analysisdir+"nvh/")
+    download_images(not_very_high, analysisdir+"nvh/")
     # step 4: other detected stamps in volumes that are still short
     #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("outline.csv", "w", newline="") as csvfile:
