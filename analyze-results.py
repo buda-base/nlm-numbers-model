@@ -141,6 +141,18 @@ STRIKEDTHROUGH = [
     "I1NLM9532_0010260.jpg",
     "I1NLM9550_0010240.jpg",
     "I1NLM9140_0010078.jpg",
+    "I1NLM8241_0010340.jpg",
+    "I1NLM8324_0010066.jpg",
+    "I1NLM8324_0010068.jpg",
+    "I1NLM8324_0010077.jpg",
+    "I1NLM8891_0010162.jpg",
+    "I1NLM9028_0010380.jpg",
+    "I1NLM9191_0010025.jpg",
+    "I1NLM9281_0010007.jpg",
+    "I1NLM9417_0010035.jpg",
+    "I1NLM9538_0010165.jpg",
+    "I1NLM9550_0010240.jpg",
+    "I1NLM9644_0010127.jpg",
 ]
 
 DUPLICATES = [
@@ -177,7 +189,7 @@ DUPLICATES = [
     "I1NLM6422_0010238.jpg",
 ]
 
-IGNORE = ["I1NLM1511_0010199"]
+IGNORE = ["I1NLM1511_0010199.jpg", "I1NLM9294_0010028.jpg"]
 
 DOUBLE = [
     "I1NLM6915_0010164.jpg",
@@ -475,6 +487,48 @@ DOUBLE = [
     "I1NLM9025_0010253.jpg",
     "I1NLM9065_0010137.jpg",
     "I1NLM9125_0010201.jpg",
+    "I1NLM8456_0010161.jpg",
+    "I1NLM8459_0010265.jpg",
+    "I1NLM8459_0010266.jpg",
+    "I1NLM8459_0010269.jpg",
+    "I1NLM8797_0010310.jpg",
+    "I1NLM8799_0010177.jpg",
+    "I1NLM8839_0010299.jpg",
+    "I1NLM8866_0010157.jpg",
+    "I1NLM8935_0010050.jpg",
+    "I1NLM9055_0010057.jpg",
+    "I1NLM9056_0010157.jpg",
+    "I1NLM9065_0010137.jpg",
+    "I1NLM9065_0010141.jpg",
+    "I1NLM9080_0010093.jpg",
+    "I1NLM9168_0010281.jpg",
+    "I1NLM9169_0010319.jpg",
+    "I1NLM9184_0010187.jpg",
+    "I1NLM9184_0010188.jpg",
+    "I1NLM9191_0010004.jpg",
+    "I1NLM9191_0010007.jpg",
+    "I1NLM9191_0010009.jpg",
+    "I1NLM9191_0010014.jpg",
+    "I1NLM9191_0010016.jpg",
+    "I1NLM9288_0010170.jpg",
+    "I1NLM9293_0010227.jpg",
+    "I1NLM9375_0010012.jpg",
+    "I1NLM9375_0010013.jpg",
+    "I1NLM9375_0010325.jpg",
+    "I1NLM9375_0010383.jpg",
+    "I1NLM9395_0010262.jpg",
+    "I1NLM9416_0010180.jpg",
+    "I1NLM9424_0010190.jpg",
+    "I1NLM9432_0010037.jpg",
+    "I1NLM9440_0010124.jpg",
+    "I1NLM9641_0010277.jpg",
+    "I1NLM9644_0010104.jpg",
+    "I1NLM9667_0010144.jpg",
+    "I1NLM9667_0010168.jpg",
+    "I1NLM9667_0010174.jpg",
+    "I1NLM9717_0010164.jpg",
+    "I1NLM9768_0010250.jpg",
+    "I1NLM9787_0010028.jpg",
 ]
 
 NO_STAMP_TEXT_BREAK = [
@@ -827,17 +881,17 @@ def main(batchdir, analysisdir):
         )
     print(stats)
     Path(analysisdir).mkdir(parents=True, exist_ok=True)
-    with open(analysisdir + "nvh.txt", "w") as listfile:
-        for name in sorted(set(not_very_high)):
+    with open(analysisdir + "negative-pos.txt", "w") as listfile:
+        for name in sorted(set(sort_for_false_negatives_pos)):
             listfile.write(name + "\n")
     # step 1: volumes with more detected stamps than catalog texts
     #download_images(sort_for_false_positives, analysisdir+"positives/")
     # step 2: likely missed stamps (score above 0, below 0.5)
     #download_images(sort_for_false_negatives, analysisdir+"negatives/")
     # step 3: detected stamps with a score between 0.5 and 0.9
-    download_images(not_very_high, analysisdir+"nvh/")
+    #download_images(not_very_high, analysisdir+"nvh/")
     # step 4: other detected stamps in volumes that are still short
-    #download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
+    download_images(sort_for_false_negatives_pos, analysisdir+"negative-pos/")
     with open("outline.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for r in grand_outline:
